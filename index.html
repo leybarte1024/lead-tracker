@@ -101,7 +101,6 @@
       outline: none;
     }
 
-    /* --- Status Styling Config --- */
     .lead-row {
       animation: rowIn 280ms ease both;
       transition: background-color 200ms ease;
@@ -112,12 +111,10 @@
       vertical-align: middle;
     }
 
-    /* Standard state */
     .lead-row:hover {
       background: rgba(219, 227, 214, 0.3);
     }
 
-    /* Appointment Set: Bright Green (#22c55e / 15% opacity for row, distinct green badges) */
     .lead-row.status-appointment_set {
       background: rgba(34, 197, 94, 0.16) !important;
     }
@@ -125,7 +122,6 @@
       background: rgba(34, 197, 94, 0.24) !important;
     }
 
-    /* Email Bounced: Dark Gray */
     .lead-row.status-email_bounced {
       background: rgba(75, 85, 99, 0.15) !important;
     }
@@ -133,7 +129,6 @@
       background: rgba(75, 85, 99, 0.22) !important;
     }
 
-    /* Expansions */
     .detail-panel {
       display: grid;
       grid-template-rows: 0fr;
@@ -191,7 +186,6 @@
       to { opacity: 1; transform: translateY(0) scale(1); }
     }
 
-    /* Autocomplete Popover Position */
     .suggest-container {
       position: relative;
     }
@@ -239,6 +233,7 @@
 <body style="background: radial-gradient(rgb(248, 223, 211), rgb(245, 240, 230), rgb(233, 238, 231));">
   <div class="app-shell atmosphere w-full min-h-screen">
     
+    <!-- HEADER -->
     <header class="w-full border-b border-white/10" style="background: linear-gradient(135deg, rgb(19, 46, 47), rgb(37, 76, 73));">
       <div class="content-width py-7 md:py-10">
         <div class="flex flex-col gap-7 lg:flex-row lg:items-end lg:justify-between">
@@ -267,30 +262,25 @@
           </div>
         </div>
         
-        <div class="mt-8 grid gap-3 sm:grid-cols-4 reveal">
+        <!-- DASHBOARD METRICS -->
+        <div class="mt-8 grid gap-3 sm:grid-cols-2 reveal">
           <article class="rounded-2xl border border-white/10 p-4" style="background: rgba(255, 255, 255, 0.08);">
-            <p class="font-semibold text-xs text-[#b9cfca]">Total leads</p>
+            <p class="font-semibold text-xs text-[#b9cfca]">Total Leads</p>
             <p id="total-leads" class="display-font mt-1 text-3xl font-bold text-white">0</p>
           </article>
           <article class="rounded-2xl border border-white/10 p-4" style="background: rgba(255, 255, 255, 0.08);">
             <p class="font-semibold text-xs text-[#22c55e]">Appointment Set</p>
             <p id="total-appointments" class="display-font mt-1 text-3xl font-bold text-[#22c55e]">0</p>
           </article>
-          <article class="rounded-2xl border border-white/10 p-4" style="background: rgba(255, 255, 255, 0.08);">
-            <p class="font-semibold text-xs text-[#9ca3af]">Email Bounced</p>
-            <p id="total-bounces" class="display-font mt-1 text-3xl font-bold text-slate-400">0</p>
-          </article>
-          <article class="rounded-2xl border border-white/10 p-4" style="background: rgba(255, 255, 255, 0.08);">
-            <p class="font-semibold text-xs text-[#b9cfca]">Active Sources / Communities</p>
-            <p id="total-communities" class="display-font mt-1 text-3xl font-bold text-white">0</p>
-          </article>
         </div>
       </div>
     </header>
 
+    <!-- MAIN APP WRAPPER -->
     <main class="content-width py-6 md:py-9">
       <section class="surface reveal overflow-hidden rounded-[1.5rem]">
         
+        <!-- FILTER BAR -->
         <div class="border-b border-[#ded8ca] p-4 md:p-6">
           <div class="mb-5 flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
             <div>
@@ -305,7 +295,7 @@
               <label class="mb-1.5 block font-bold text-xs text-[#294443]" for="search-input">Search database</label>
               <div class="relative">
                 <i data-lucide="search" class="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#667372]"></i> 
-                <input id="search-input" class="field pl-10 text-sm" type="search" placeholder="Company, name, email, note, or source...">
+                <input id="search-input" class="field pl-10 text-sm" type="search" placeholder="Search leads...">
               </div>
             </div>
             <div>
@@ -315,9 +305,9 @@
               </select>
             </div>
             <div>
-              <label class="mb-1.5 block font-bold text-xs text-[#294443]" for="community-filter">Filter by Source</label> 
-              <select id="community-filter" class="field text-sm"> 
-                <option value="">All sources</option> 
+              <label class="mb-1.5 block font-bold text-xs text-[#294443]" for="city-filter">Filter by City and State</label> 
+              <select id="city-filter" class="field text-sm"> 
+                <option value="">All cities & states</option> 
               </select>
             </div>
             <div>
@@ -328,21 +318,23 @@
           </form>
         </div>
 
+        <!-- LEADS DIRECTORY TABLE -->
         <div class="overflow-x-auto">
           <table class="w-full text-left border-collapse">
             <thead>
               <tr class="desktop-table-head bg-[#fbf8f0] text-xs font-bold uppercase tracking-wider text-[#667372] border-b border-[#ded8ca]">
                 <th class="py-4 px-6 w-8"></th>
-                <th class="py-4 px-6">Company & Brand</th>
-                <th class="py-4 px-6">Representative Contact</th>
-                <th class="py-4 px-6">Sponsorship Details</th>
+                <th class="py-4 px-6">Business / Brand</th>
+                <th class="py-4 px-6">Owner / Contact</th>
+                <th class="py-4 px-6">Location</th>
                 <th class="py-4 px-6">Outreach Stage (Emails 1-3)</th>
-                <th class="py-4 px-6">Group / Community</th>
+                <th class="py-4 px-6">Industry</th>
                 <th class="py-4 px-6 text-right">Actions</th>
               </tr>
             </thead>
             <tbody id="leads-table-body">
-              </tbody>
+              <!-- Rendered Dynamically -->
+            </tbody>
           </table>
           
           <div id="empty-state" class="hidden p-12 text-center">
@@ -356,15 +348,17 @@
       </section>
     </main>
 
+    <!-- TOAST ALERT PANEL -->
     <div id="toast" class="toast fixed bottom-6 left-1/2 -translate-x-1/2 z-50 bg-[#132e2f] text-[#f5f0e6] px-5 py-3 rounded-xl shadow-2xl flex items-center gap-3 text-sm font-medium">
       <span id="toast-icon"></span>
       <span id="toast-message">Action processed</span>
     </div>
 
+    <!-- MODAL: ADD LEAD -->
     <div id="add-modal" class="modal-backdrop fixed inset-0 z-50 flex items-center justify-center p-4 hidden">
       <div class="modal-card surface rounded-[1.5rem] p-6 md:p-8 flex flex-col gap-6">
         <div class="flex items-center justify-between">
-          <h3 class="display-font text-2xl font-bold">Add New Lead Profile</h3>
+          <h3 class="display-font text-2xl font-bold">Add New Lead</h3>
           <button type="button" class="close-add-modal p-2 hover:bg-black/5 rounded-full transition">
             <i data-lucide="x" class="h-6 w-6"></i>
           </button>
@@ -373,59 +367,72 @@
         <form id="add-lead-form" class="grid gap-4 sm:grid-cols-2" autocomplete="off">
           
           <div class="suggest-container">
-            <label class="block text-xs font-bold uppercase tracking-wide text-[#667372] mb-1.5" for="form-company">Company Name *</label>
-            <input id="form-company" type="text" required class="field" placeholder="Acme Corp" oninput="showSuggest(this, 'company')">
+            <label class="block text-xs font-bold uppercase tracking-wide text-[#667372] mb-1.5" for="form-company">Business Name</label>
+            <input id="form-company" type="text" class="field" placeholder="e.g. Apex Tech Solutions" oninput="showSuggest(this, 'company')">
             <div class="suggest-box hidden" id="suggest-company"></div>
           </div>
           
           <div class="suggest-container">
-            <label class="block text-xs font-bold uppercase tracking-wide text-[#667372] mb-1.5" for="form-name">Contact Representative *</label>
-            <input id="form-name" type="text" required class="field" placeholder="Jessica Ramos" oninput="showSuggest(this, 'name')">
+            <label class="block text-xs font-bold uppercase tracking-wide text-[#667372] mb-1.5" for="form-name">Owner / CEO</label>
+            <input id="form-name" type="text" class="field" placeholder="e.g. Jessica Ramos" oninput="showSuggest(this, 'name')">
             <div class="suggest-box hidden" id="suggest-name"></div>
+          </div>
+
+          <div class="suggest-container">
+            <label class="block text-xs font-bold uppercase tracking-wide text-[#667372] mb-1.5" for="form-website">Website</label>
+            <input id="form-website" type="text" class="field" placeholder="e.g. www.apextech.com" oninput="showSuggest(this, 'website')">
+            <div class="suggest-box hidden" id="suggest-website"></div>
           </div>
           
           <div class="suggest-container">
             <label class="block text-xs font-bold uppercase tracking-wide text-[#667372] mb-1.5" for="form-email">Email Address</label>
-            <input id="form-email" type="email" class="field" placeholder="jessica@brand.com" oninput="showSuggest(this, 'email')">
+            <input id="form-email" type="email" class="field" placeholder="e.g. jessica@apextech.com" oninput="showSuggest(this, 'email')">
             <div class="suggest-box hidden" id="suggest-email"></div>
           </div>
           
           <div class="suggest-container">
             <label class="block text-xs font-bold uppercase tracking-wide text-[#667372] mb-1.5" for="form-phone">Phone Number</label>
-            <input id="form-phone" type="tel" class="field" placeholder="+63 900 000 0000" oninput="showSuggest(this, 'phone')">
+            <input id="form-phone" type="tel" class="field" placeholder="e.g. (515) 555-0199" oninput="showSuggest(this, 'phone')">
             <div class="suggest-box hidden" id="suggest-phone"></div>
           </div>
-          
+
           <div class="suggest-container">
-            <label class="block text-xs font-bold uppercase tracking-wide text-[#667372] mb-1.5" for="form-industry">Industry Category *</label>
-            <input id="form-industry" type="text" required class="field" placeholder="e.g. Fintech, Logistics" oninput="showSuggest(this, 'industry')">
-            <div class="suggest-box hidden" id="suggest-industry"></div>
-          </div>
-          
-          <div class="suggest-container">
-            <label class="block text-xs font-bold uppercase tracking-wide text-[#667372] mb-1.5" for="form-community">Source / Community Group *</label>
-            <input id="form-community" type="text" required class="field" placeholder="e.g. Grab Hub, IT-BPM" oninput="showSuggest(this, 'community')">
-            <div class="suggest-box hidden" id="suggest-community"></div>
+            <label class="block text-xs font-bold uppercase tracking-wide text-[#667372] mb-1.5" for="form-years">Yrs in Business</label>
+            <input id="form-years" type="text" class="field" placeholder="e.g. 5" oninput="showSuggest(this, 'years')">
+            <div class="suggest-box hidden" id="suggest-years"></div>
           </div>
 
-          <div class="sm:col-span-2">
-            <label class="block text-xs font-bold uppercase tracking-wide text-[#667372] mb-1.5" for="form-sponsorships">Sponsorship Details</label>
-            <input id="form-sponsorships" type="text" class="field" placeholder="e.g. Silver Tier Sponsor, Event partner">
+          <div>
+            <label class="block text-xs font-bold uppercase tracking-wide text-[#667372] mb-1.5" for="form-sponsorships">Sponsorships Involved With</label>
+            <input id="form-sponsorships" type="text" class="field" placeholder="e.g. Gold Sponsor, Community Partner">
+          </div>
+          
+          <div class="suggest-container">
+            <label class="block text-xs font-bold uppercase tracking-wide text-[#667372] mb-1.5" for="form-industry">Industry</label>
+            <input id="form-industry" type="text" class="field" placeholder="e.g. Technology, Logistics" oninput="showSuggest(this, 'industry')">
+            <div class="suggest-box hidden" id="suggest-industry"></div>
+          </div>
+
+          <div class="suggest-container sm:col-span-2">
+            <label class="block text-xs font-bold uppercase tracking-wide text-[#667372] mb-1.5" for="form-cityState">City and State</label>
+            <input id="form-cityState" type="text" class="field" placeholder="e.g. Austin, TX" oninput="showSuggest(this, 'cityState')">
+            <div class="suggest-box hidden" id="suggest-cityState"></div>
           </div>
           
           <div class="sm:col-span-2">
-            <label class="block text-xs font-bold uppercase tracking-wide text-[#667372] mb-1.5" for="form-notes">Interaction Notes & Logs</label>
-            <textarea id="form-notes" rows="3" class="field resize-none" placeholder="Enter first-contact updates, custom details, or tracking items..."></textarea>
+            <label class="block text-xs font-bold uppercase tracking-wide text-[#667372] mb-1.5" for="form-notes">Notes</label>
+            <textarea id="form-notes" rows="3" class="field resize-none" placeholder="Enter custom logs, details, or records here..."></textarea>
           </div>
           
           <div class="sm:col-span-2 flex justify-end gap-3 mt-4">
             <button type="button" class="close-add-modal px-6 py-2.5 border border-[#cbc5b8] rounded-full hover:bg-black/5 font-bold transition">Cancel</button>
-            <button type="submit" class="px-6 py-2.5 bg-[#ee6b4d] text-white rounded-full hover:bg-[#cf4f34] font-bold transition shadow-lg">Save Lead Entry</button>
+            <button type="submit" class="px-6 py-2.5 bg-[#ee6b4d] text-white rounded-full hover:bg-[#cf4f34] font-bold transition shadow-lg">Save Lead</button>
           </div>
         </form>
       </div>
     </div>
 
+    <!-- MODAL: BULK FILE IMPORT -->
     <div id="import-modal" class="modal-backdrop fixed inset-0 z-50 flex items-center justify-center p-4 hidden">
       <div class="modal-card surface rounded-[1.5rem] p-6 md:p-8 max-w-md flex flex-col gap-6">
         <div class="flex items-center justify-between">
@@ -436,7 +443,7 @@
         </div>
         <p class="text-sm text-[#667372] leading-relaxed">
           Upload any <strong>.xlsx</strong> or <strong>.csv</strong> spreadsheet. For best compatibility, your headers should loosely align to: 
-          <br><strong class="text-slate-800">Company, Contact Name, Email, Phone, Industry, Source, Sponsorships, Notes</strong>.
+          <br><strong class="text-slate-800">Company, Owner, Website, Email, Phone, Years, Sponsorships, Industry, City State, Notes</strong>.
         </p>
         
         <div class="border-2 border-dashed border-[#cbc5b8] hover:border-[#ee6b4d] rounded-2xl p-8 text-center transition cursor-pointer relative bg-[#fffefb]">
@@ -446,7 +453,6 @@
               <i data-lucide="upload-cloud" class="h-full w-full"></i>
             </div>
             <p class="font-bold text-sm">Select Excel / CSV File</p>
-            <p class="text-xs text-[#667372]">Standard sheet columns map automatically</p>
           </div>
         </div>
         
@@ -458,34 +464,39 @@
 
   </div>
 
+  <!-- MAIN SCRIPT CONTROLLERS -->
   <script>
-    // --- DATABASE CONFIGURATION ---
-    let leads = JSON.parse(localStorage.getItem('consolidated_leads')) || [
+    // --- DATABASE CONFIGURATION (Updated with US Default Data) ---
+    let leads = JSON.parse(localStorage.getItem('consolidated_leads_v3_us')) || [
       {
         id: '1',
-        company: 'Apex Logistics Inc.',
+        company: 'Apex Tech Solutions',
         name: 'Jessica Ramos',
-        email: 'jessica.r@apex.org',
-        phone: '+63 917 555 1122',
-        industry: 'Transportation',
-        community: 'Logistics Union',
-        sponsorships: 'Silver Sponsor',
-        notes: 'Keen on route updates. Reached out during the winter program.',
-        status: 'default', // 'default', 'appointment_set', 'email_bounced'
+        website: 'www.apextech.com',
+        email: 'jessica.r@apextech.com',
+        phone: '(515) 555-0199',
+        years: '8',
+        sponsorships: 'Gold Sponsor',
+        industry: 'Technology',
+        cityState: 'Austin, TX',
+        notes: 'Interested in software integrations.',
+        status: 'default',
         email1: '2026-07-01',
         email2: '2026-07-08',
         email3: ''
       },
       {
         id: '2',
-        company: 'Spark Innovations Ltd',
+        company: 'GreenRoute Logistics',
         name: 'Romeo Santos',
-        email: 'romeo@sparkinnovate.com',
-        phone: '+63 920 888 3344',
-        industry: 'Information Technology',
-        community: 'IT-BPM Association',
-        sponsorships: 'Platinum Tier',
-        notes: 'Inquired about technical speed integrations. Follow-up immediately.',
+        website: 'www.greenroutelogistics.com',
+        email: 'romeo@greenroute.com',
+        phone: '(305) 555-0143',
+        years: '3',
+        sponsorships: 'Silver Sponsor',
+        industry: 'Logistics',
+        cityState: 'Miami, FL',
+        notes: 'Inquired about route coordination features.',
         status: 'appointment_set',
         email1: '2026-07-02',
         email2: '',
@@ -493,18 +504,14 @@
       }
     ];
 
-    // --- DOM TARGETS ---
     const leadsTableBody = document.getElementById('leads-table-body');
     const emptyState = document.getElementById('empty-state');
     const totalLeadsEl = document.getElementById('total-leads');
     const totalAppointmentsEl = document.getElementById('total-appointments');
-    const totalBouncesEl = document.getElementById('total-bounces');
-    const totalCommunitiesEl = document.getElementById('total-communities');
-    const visibleCountEl = document.getElementById('visible-count');
 
     const searchInput = document.getElementById('search-input');
     const industryFilter = document.getElementById('industry-filter');
-    const communityFilter = document.getElementById('community-filter');
+    const cityFilter = document.getElementById('city-filter');
     const clearFiltersBtn = document.getElementById('clear-filters');
     const addLeadForm = document.getElementById('add-lead-form');
     const fileInput = document.getElementById('spreadsheet-file');
@@ -518,7 +525,17 @@
 
     const exportBtn = document.getElementById('export-leads-button');
 
-    // --- STARTUP APP INITS ---
+    // --- DATE FORMATTER: YYYY-MM-DD -> MM/DD/YY (US Standard) ---
+    function formatDateToMDY(dateString) {
+      if (!dateString) return '';
+      const parts = dateString.split('-');
+      if (parts.length !== 3) return dateString;
+      const year = parts[0].slice(-2);
+      const month = parts[1];
+      const day = parts[2];
+      return `${month}/${day}/${year}`;
+    }
+
     document.addEventListener('DOMContentLoaded', () => {
       renderApp();
       setupListeners();
@@ -526,22 +543,16 @@
     });
 
     function renderApp() {
-      // 1. Calculations & Dashboard Metrics updates
-      const activeCommunities = new Set(leads.map(l => l.community.trim()).filter(Boolean));
       const appointmentCount = leads.filter(l => l.status === 'appointment_set').length;
-      const bouncedCount = leads.filter(l => l.status === 'email_bounced').length;
-
       totalLeadsEl.textContent = leads.length;
       totalAppointmentsEl.textContent = appointmentCount;
-      totalBouncesEl.textContent = bouncedCount;
-      totalCommunitiesEl.textContent = activeCommunities.size;
 
-      // 2. Refresh Filters Options
-      const activeIndustries = new Set(leads.map(l => l.industry.trim()).filter(Boolean));
+      const activeIndustries = new Set(leads.map(l => (l.industry || '').trim()).filter(Boolean));
+      const activeCities = new Set(leads.map(l => (l.cityState || '').trim()).filter(Boolean));
+      
       populateFilter(industryFilter, Array.from(activeIndustries), 'All industries');
-      populateFilter(communityFilter, Array.from(activeCommunities), 'All sources');
+      populateFilter(cityFilter, Array.from(activeCities), 'All cities & states');
 
-      // 3. Filter and Output
       filterAndProcessData();
     }
 
@@ -557,28 +568,27 @@
       });
     }
 
-    // --- MAIN DYNAMIC RENDER & FILTER ---
     function filterAndProcessData() {
       const searchVal = searchInput.value.toLowerCase().trim();
       const selectedInd = industryFilter.value;
-      const selectedComm = communityFilter.value;
+      const selectedCity = cityFilter.value;
 
       const filtered = leads.filter(lead => {
         const matchesSearch = 
-          lead.company.toLowerCase().includes(searchVal) ||
-          lead.name.toLowerCase().includes(searchVal) ||
-          lead.email.toLowerCase().includes(searchVal) ||
-          lead.community.toLowerCase().includes(searchVal) ||
-          (lead.sponsorships && lead.sponsorships.toLowerCase().includes(searchVal)) ||
-          (lead.notes && lead.notes.toLowerCase().includes(searchVal));
+          (lead.company || '').toLowerCase().includes(searchVal) ||
+          (lead.name || '').toLowerCase().includes(searchVal) ||
+          (lead.email || '').toLowerCase().includes(searchVal) ||
+          (lead.cityState || '').toLowerCase().includes(searchVal) ||
+          (lead.sponsorships || '').toLowerCase().includes(searchVal) ||
+          (lead.notes || '').toLowerCase().includes(searchVal);
 
         const matchesInd = !selectedInd || lead.industry === selectedInd;
-        const matchesComm = !selectedComm || lead.community === selectedComm;
+        const matchesCity = !selectedCity || lead.cityState === selectedCity;
 
-        return matchesSearch && matchesInd && matchesComm;
+        return matchesSearch && matchesInd && matchesCity;
       });
 
-      visibleCountEl.textContent = `Showing ${filtered.length} of ${leads.length} records`;
+      document.getElementById('visible-count').textContent = `Showing ${filtered.length} of ${leads.length} records`;
 
       if (filtered.length === 0) {
         leadsTableBody.innerHTML = '';
@@ -589,18 +599,20 @@
       }
     }
 
-    // --- RENDER TABLE ROWS ---
     function renderEntries(items) {
       leadsTableBody.innerHTML = items.map(lead => {
-        // Status classes
         let statusClass = 'status-default';
         if (lead.status === 'appointment_set') statusClass = 'status-appointment_set';
         if (lead.status === 'email_bounced') statusClass = 'status-email_bounced';
 
-        // Prepare email dates visual status display
-        const email1Badge = lead.email1 ? `<span class="bg-indigo-100 text-indigo-800 text-[10px] px-2 py-0.5 rounded font-mono" title="Sent: ${lead.email1}">E1: ${lead.email1}</span>` : '<span class="text-slate-300 text-[10px] border border-dashed px-1.5 rounded font-mono">E1</span>';
-        const email2Badge = lead.email2 ? `<span class="bg-indigo-100 text-indigo-800 text-[10px] px-2 py-0.5 rounded font-mono" title="Sent: ${lead.email2}">E2: ${lead.email2}</span>` : '<span class="text-slate-300 text-[10px] border border-dashed px-1.5 rounded font-mono">E2</span>';
-        const email3Badge = lead.email3 ? `<span class="bg-indigo-100 text-indigo-800 text-[10px] px-2 py-0.5 rounded font-mono" title="Sent: ${lead.email3}">E3: ${lead.email3}</span>` : '<span class="text-slate-300 text-[10px] border border-dashed px-1.5 rounded font-mono">E3</span>';
+        // US standard formatted email dates
+        const fEmail1 = formatDateToMDY(lead.email1);
+        const fEmail2 = formatDateToMDY(lead.email2);
+        const fEmail3 = formatDateToMDY(lead.email3);
+
+        const email1Badge = lead.email1 ? `<span class="bg-indigo-100 text-indigo-800 text-[10px] px-2 py-0.5 rounded font-mono" title="Sent: ${fEmail1}">E1: ${fEmail1}</span>` : '<span class="text-slate-300 text-[10px] border border-dashed px-1.5 rounded font-mono">E1</span>';
+        const email2Badge = lead.email2 ? `<span class="bg-indigo-100 text-indigo-800 text-[10px] px-2 py-0.5 rounded font-mono" title="Sent: ${fEmail2}">E2: ${fEmail2}</span>` : '<span class="text-slate-300 text-[10px] border border-dashed px-1.5 rounded font-mono">E2</span>';
+        const email3Badge = lead.email3 ? `<span class="bg-indigo-100 text-indigo-800 text-[10px] px-2 py-0.5 rounded font-mono" title="Sent: ${fEmail3}">E3: ${fEmail3}</span>` : '<span class="text-slate-300 text-[10px] border border-dashed px-1.5 rounded font-mono">E3</span>';
 
         return `
           <tr class="lead-row cursor-pointer ${statusClass}" data-lead-id="${lead.id}">
@@ -609,18 +621,17 @@
                 <i data-lucide="chevron-down" class="h-4.5 w-4.5"></i>
               </button>
             </td>
-            <td class="py-4 px-6 text-sm font-bold" data-mobile-label="Company">
+            <td class="py-4 px-6 text-sm font-bold" data-mobile-label="Business Name">
               ${safeText(lead.company)}
+              ${lead.website ? `<div class="text-xs text-blue-600 font-normal mt-0.5"><a href="https://${lead.website}" target="_blank" onclick="event.stopPropagation();" class="hover:underline">${safeText(lead.website)}</a></div>` : ''}
             </td>
-            <td class="py-4 px-6 text-sm" data-mobile-label="Contact Representative">
-              <div class="font-medium">${safeText(lead.name)}</div>
+            <td class="py-4 px-6 text-sm" data-mobile-label="Owner / CEO">
+              <div class="font-medium">${safeText(lead.name || 'N/A')}</div>
               ${lead.email ? `<div class="text-xs text-[#667372] mt-0.5">${safeText(lead.email)}</div>` : ''}
               ${lead.phone ? `<div class="text-[11px] text-[#667372]">${safeText(lead.phone)}</div>` : ''}
             </td>
-            <td class="py-4 px-6 text-sm" data-mobile-label="Sponsorship">
-              <span class="text-xs font-semibold text-[#132e2f] bg-[#f5ebd6] border border-[#e3d0ae] px-2 py-1 rounded-md">
-                ${lead.sponsorships ? safeText(lead.sponsorships) : 'General Lead'}
-              </span>
+            <td class="py-4 px-6 text-sm" data-mobile-label="Location">
+              <span class="text-xs text-slate-700">${safeText(lead.cityState || 'N/A')}</span>
             </td>
             <td class="py-4 px-6 text-sm" data-mobile-label="Outreach History">
               <div class="flex items-center gap-1.5">
@@ -629,15 +640,15 @@
                 ${email3Badge}
               </div>
             </td>
-            <td class="py-4 px-6 text-sm" data-mobile-label="Community">
+            <td class="py-4 px-6 text-sm" data-mobile-label="Industry">
               <span class="inline-flex items-center rounded-full bg-[#dbe3d6] px-2.5 py-0.5 text-xs font-medium text-[#2d4030]">
-                ${safeText(lead.community)}
+                ${safeText(lead.industry || 'General')}
               </span>
             </td>
             <td class="py-4 px-6 text-right" data-mobile-label="Controls">
               <div class="lead-actions flex items-center justify-end gap-2" onclick="event.stopPropagation()">
                 <select onchange="updateLeadStatus('${lead.id}', this.value)" class="text-xs border border-[#cbc5b8] rounded px-2 py-1 bg-white font-semibold text-[#132e2f]">
-                  <option value="default" ${lead.status === 'default' ? 'selected' : ''}>Status (Default)</option>
+                  <option value="default" ${lead.status === 'default' ? 'selected' : ''}>Lead (Default)</option>
                   <option value="appointment_set" ${lead.status === 'appointment_set' ? 'selected' : ''}>📅 Appointment Set</option>
                   <option value="email_bounced" ${lead.status === 'email_bounced' ? 'selected' : ''}>🚫 Email Bounced</option>
                 </select>
@@ -648,6 +659,7 @@
             </td>
           </tr>
           
+          <!-- ACCORDION EXPANSION DETAIL PANEL -->
           <tr class="bg-white/40 hidden" data-parent-lead-id="${lead.id}">
             <td colspan="7" class="p-0 border-t border-[#ded8ca]">
               <div class="detail-panel">
@@ -655,10 +667,12 @@
                   
                   <div>
                     <h4 class="text-xs font-bold uppercase tracking-wider text-[#667372] mb-1.5">Lead Details</h4>
-                    <p class="text-sm font-semibold text-[#132e2f]">${safeText(lead.company)}</p>
-                    <p class="text-xs text-[#667372] mt-1">Industry: ${safeText(lead.industry)}</p>
-                    <p class="text-xs text-[#667372]">Community Group: ${safeText(lead.community)}</p>
-                    <p class="text-xs text-[#667372]">Sponsorship Tier: ${lead.sponsorships ? safeText(lead.sponsorships) : 'None'}</p>
+                    <p class="text-sm font-semibold text-[#132e2f]">${safeText(lead.company || 'Unnamed Business')}</p>
+                    <p class="text-xs text-slate-700 mt-1">Owner: ${safeText(lead.name || 'N/A')}</p>
+                    <p class="text-xs text-[#667372]">Industry: ${safeText(lead.industry || 'N/A')}</p>
+                    <p class="text-xs text-[#667372]">Years in Business: ${safeText(lead.years || 'N/A')}</p>
+                    <p class="text-xs text-[#667372]">Location: ${safeText(lead.cityState || 'N/A')}</p>
+                    <p class="text-xs text-[#667372]">Sponsorships: ${safeText(lead.sponsorships || 'None')}</p>
                   </div>
                   
                   <div onclick="event.stopPropagation()">
@@ -680,8 +694,8 @@
                   </div>
                   
                   <div onclick="event.stopPropagation()">
-                    <h4 class="text-xs font-bold uppercase tracking-wider text-[#667372] mb-1.5">Interactive Notes & Log</h4>
-                    <textarea onchange="updateRowNotes('${lead.id}', this.value)" rows="3" class="w-full text-xs italic text-slate-700 bg-white border border-[#ded8ca] rounded-xl p-3 leading-relaxed whitespace-pre-wrap" placeholder="Edit notes directly here. Autocompletes immediately...">${lead.notes ? safeText(lead.notes) : ''}</textarea>
+                    <h4 class="text-xs font-bold uppercase tracking-wider text-[#667372] mb-1.5">Interactive Notes</h4>
+                    <textarea onchange="updateRowNotes('${lead.id}', this.value)" rows="3" class="w-full text-xs italic text-slate-700 bg-white border border-[#ded8ca] rounded-xl p-3 leading-relaxed whitespace-pre-wrap" placeholder="Edit notes directly...">${lead.notes ? safeText(lead.notes) : ''}</textarea>
                   </div>
                   
                 </div>
@@ -694,7 +708,6 @@
       lucide.createIcons();
     }
 
-    // --- HELPER: SAFE DISPLAY VALUES ---
     function safeText(str) {
       if (!str) return '';
       return str.replace(/[&<>'"]/g, 
@@ -702,14 +715,11 @@
       );
     }
 
-    // --- EVENT HANDLERS / LISTENERS ---
     function setupListeners() {
-      // Interactive Search
       searchInput.addEventListener('input', filterAndProcessData);
       industryFilter.addEventListener('change', filterAndProcessData);
-      communityFilter.addEventListener('change', filterAndProcessData);
+      cityFilter.addEventListener('change', filterAndProcessData);
 
-      // Accordion expanded row handling
       leadsTableBody.addEventListener('click', (e) => {
         const row = e.target.closest('.lead-row');
         if (!row || e.target.closest('select') || e.target.closest('button') && !e.target.closest('.detail-chevron')) return;
@@ -731,36 +741,24 @@
         }
       });
 
-      // Clear Filters click
       clearFiltersBtn.addEventListener('click', () => {
         searchInput.value = '';
         industryFilter.value = '';
-        communityFilter.value = '';
+        cityFilter.value = '';
         filterAndProcessData();
         showToast('Cleaned all directory filters', 'filter-x');
       });
 
-      // Show/Hide Modals
-      openAddModalBtn.addEventListener('click', () => {
-        addModal.classList.remove('hidden');
-      });
-      openImportModalBtn.addEventListener('click', () => {
-        importModal.classList.remove('hidden');
-      });
+      openAddModalBtn.addEventListener('click', () => addModal.classList.remove('hidden'));
+      openImportModalBtn.addEventListener('click', () => importModal.classList.remove('hidden'));
 
       closeAddModalBtns.forEach(btn => btn.addEventListener('click', () => addModal.classList.add('hidden')));
       closeImportModalBtns.forEach(btn => btn.addEventListener('click', () => importModal.classList.add('hidden')));
 
-      // Form Submits
       addLeadForm.addEventListener('submit', handleAddLeadSubmit);
-
-      // Spreadsheet CSV/XLSX Uploads parsing
       fileInput.addEventListener('change', parseUploadedSpreadsheet);
-
-      // Spreadsheet download export trigger
       exportBtn.addEventListener('click', handleSheetExport);
 
-      // Click outside suggest boxes removes suggestions
       document.addEventListener('click', (e) => {
         if (!e.target.closest('.suggest-container')) {
           document.querySelectorAll('.suggest-box').forEach(box => box.classList.add('hidden'));
@@ -768,8 +766,6 @@
       });
     }
 
-    // --- PREVENT DUPLICATES & AUTOCOMPLETE SUGGESTIONS ---
-    // Scans dynamically matching keywords to guide typed text input.
     window.showSuggest = function(inputEl, fieldName) {
       const value = inputEl.value.toLowerCase().trim();
       const suggestBox = document.getElementById(`suggest-${fieldName}`);
@@ -779,11 +775,10 @@
         return;
       }
 
-      // Collect values already saved in the database to prevent duplicate entries
       const matchedSuggestions = Array.from(new Set(
         leads.map(l => l[fieldName] ? l[fieldName].toString().trim() : '')
              .filter(v => v.toLowerCase().includes(value))
-      )).slice(0, 5); // Limit list count
+      )).slice(0, 5);
 
       if (matchedSuggestions.length === 0) {
         suggestBox.classList.add('hidden');
@@ -802,8 +797,6 @@
       const inputEl = document.getElementById(`form-${fieldName}`);
       inputEl.value = value;
       document.getElementById(`suggest-${fieldName}`).classList.add('hidden');
-      
-      // Toast reminder alert to prevent duplicates
       showToast(`Matched existing ${fieldName}: "${value}"`, 'alert-circle');
     };
 
@@ -811,7 +804,6 @@
       return str.replace(/'/g, "\\'");
     }
 
-    // --- UPDATE LEAD OUTREACH DATE AND NOTES ---
     window.updateOutreachDate = function(leadId, field, dateVal) {
       const lead = leads.find(l => l.id === leadId);
       if (lead) {
@@ -831,44 +823,40 @@
       }
     };
 
-    // --- UPDATE STATUS & COLOR TOGGLE WITH RESET OPTION ---
     window.updateLeadStatus = function(leadId, statusVal) {
       const lead = leads.find(l => l.id === leadId);
       if (lead) {
-        lead.status = statusVal; // 'default', 'appointment_set', 'email_bounced'
+        lead.status = statusVal;
         saveLeads();
         renderApp();
-        
         if (statusVal === 'default') {
-          showToast('Lead color restored to default', 'refresh-cw');
+          showToast('Lead restored to default color', 'refresh-cw');
         } else {
           showToast(`Marked as ${statusVal.replace('_', ' ')}`, 'check-circle');
         }
       }
     };
 
-    // --- PROCESS SINGLE NEW LEAD SUBMISSION ---
     function handleAddLeadSubmit(e) {
       e.preventDefault();
 
       const company = document.getElementById('form-company').value.trim();
       const name = document.getElementById('form-name').value.trim();
+      const website = document.getElementById('form-website').value.trim();
       const email = document.getElementById('form-email').value.trim();
       const phone = document.getElementById('form-phone').value.trim();
-      const industry = document.getElementById('form-industry').value.trim();
-      const community = document.getElementById('form-community').value.trim();
+      const years = document.getElementById('form-years').value.trim();
       const sponsorships = document.getElementById('form-sponsorships').value.trim();
+      const industry = document.getElementById('form-industry').value.trim();
+      const cityState = document.getElementById('form-cityState').value.trim();
       const notes = document.getElementById('form-notes').value.trim();
 
-      // Final strict duplicate validation check before saving
-      const duplicateFound = leads.some(l => 
-        l.company.toLowerCase() === company.toLowerCase() && 
-        l.name.toLowerCase() === name.toLowerCase()
-      );
-
-      if (duplicateFound) {
-        if (!confirm(`Warning: A profile for "${company}" with Contact "${name}" already exists. Save duplicate anyway?`)) {
-          return;
+      if (company) {
+        const duplicateFound = leads.some(l => l.company && l.company.toLowerCase() === company.toLowerCase());
+        if (duplicateFound) {
+          if (!confirm(`Warning: A business profile for "${company}" already exists. Save anyway?`)) {
+            return;
+          }
         }
       }
 
@@ -876,11 +864,13 @@
         id: Date.now().toString(),
         company,
         name,
+        website,
         email,
         phone,
-        industry,
-        community,
+        years,
         sponsorships,
+        industry,
+        cityState,
         notes,
         status: 'default',
         email1: '',
@@ -896,7 +886,6 @@
       renderApp();
     }
 
-    // --- DELETE ROW ENTRY ---
     window.deleteRow = function(id) {
       if (confirm('Permanently remove this lead from database?')) {
         leads = leads.filter(l => l.id !== id);
@@ -906,12 +895,10 @@
       }
     };
 
-    // --- SAVE TO LOCALSTORAGE ---
     function saveLeads() {
-      localStorage.setItem('consolidated_leads', JSON.stringify(leads));
+      localStorage.setItem('consolidated_leads_v3_us', JSON.stringify(leads));
     }
 
-    // --- BULK SHEET EXCEL / CSV EXPORT ---
     function handleSheetExport() {
       if (leads.length === 0) {
         showToast('No leads available to export.', 'alert-circle');
@@ -919,18 +906,20 @@
       }
 
       const formatted = leads.map(lead => ({
-        'Company/Business': lead.company,
-        'Contact Representative': lead.name,
-        'Email Address': lead.email || 'N/A',
-        'Phone Line': lead.phone || 'N/A',
-        'Industry Category': lead.industry,
-        'Source/Community': lead.community,
-        'Sponsorship Status': lead.sponsorships || '',
-        'Email 1 Sent': lead.email1 || '',
-        'Email 2 Sent': lead.email2 || '',
-        'Email 3 Sent': lead.email3 || '',
-        'Outreach Status': lead.status,
-        'Interaction Logs/Notes': lead.notes || ''
+        'Business Name': lead.company || '',
+        'Owner / CEO': lead.name || '',
+        'Website': lead.website || '',
+        'Email Address': lead.email || '',
+        'Phone Number': lead.phone || '',
+        'Yrs in Business': lead.years || '',
+        'Sponsorships': lead.sponsorships || '',
+        'Industry': lead.industry || '',
+        'City and State': lead.cityState || '',
+        'Email 1 Sent': formatDateToMDY(lead.email1),
+        'Email 2 Sent': formatDateToMDY(lead.email2),
+        'Email 3 Sent': formatDateToMDY(lead.email3),
+        'Lead Status': lead.status,
+        'Notes': lead.notes || ''
       }));
 
       const wb = XLSX.utils.book_new();
@@ -941,7 +930,6 @@
       showToast('Downloaded Excel directory', 'download-cloud');
     }
 
-    // --- BULK XLSX / CSV IMPORT PARSER ---
     function parseUploadedSpreadsheet(e) {
       const file = e.target.files[0];
       if (!file) return;
@@ -962,14 +950,16 @@
           const parsedList = rawData.map((row, index) => {
             return {
               id: (Date.now() + index).toString(),
-              company: lookUpCol(row, ['company', 'business', 'brand', 'firm', 'organization']) || 'N/A',
-              name: lookUpCol(row, ['name', 'representative', 'contact', 'person']) || 'N/A',
-              email: lookUpCol(row, ['email', 'e-mail', 'mail']) || '',
-              phone: lookUpCol(row, ['phone', 'tel', 'mobile', 'contact number']) || '',
-              industry: lookUpCol(row, ['industry', 'sector', 'category']) || 'Unspecified Sector',
-              community: lookUpCol(row, ['community', 'source', 'group', 'origin']) || 'Imported Base',
-              sponsorships: lookUpCol(row, ['sponsorship', 'sponsorships', 'tier', 'sponsorship level']) || '',
-              notes: lookUpCol(row, ['notes', 'remarks', 'interaction', 'comments']) || '',
+              company: lookUpCol(row, ['business name', 'company', 'business', 'brand', 'firm']) || '',
+              name: lookUpCol(row, ['owner', 'ceo', 'name', 'representative', 'person']) || '',
+              website: lookUpCol(row, ['website', 'site', 'web']) || '',
+              email: lookUpCol(row, ['email address', 'email', 'e-mail']) || '',
+              phone: lookUpCol(row, ['phone number', 'phone', 'tel', 'mobile']) || '',
+              years: lookUpCol(row, ['yrs in business', 'years', 'yrs']) || '',
+              sponsorships: lookUpCol(row, ['sponsorships', 'sponsorship']) || '',
+              industry: lookUpCol(row, ['industry', 'sector']) || '',
+              cityState: lookUpCol(row, ['city and state', 'city', 'state', 'location', 'citystate']) || '',
+              notes: lookUpCol(row, ['notes', 'remarks', 'comments']) || '',
               status: 'default',
               email1: lookUpCol(row, ['email1', 'email 1', 'sent 1', 'first email']) || '',
               email2: lookUpCol(row, ['email2', 'email 2', 'sent 2', 'second email']) || '',
@@ -977,7 +967,6 @@
             };
           });
 
-          // Prepend imported leads
           leads = [...parsedList, ...leads];
           saveLeads();
           importModal.classList.add('hidden');
@@ -993,7 +982,6 @@
       reader.readAsBinaryString(file);
     }
 
-    // Sheet column heuristic mapper
     function lookUpCol(row, keys) {
       for (const key of Object.keys(row)) {
         const rowKeyLower = key.toLowerCase().trim();
@@ -1004,7 +992,6 @@
       return '';
     }
 
-    // --- INTERACTIVE SYSTEM TOAST ---
     function showToast(text, iconName = 'info') {
       const toast = document.getElementById('toast');
       const toastMsg = document.getElementById('toast-message');
