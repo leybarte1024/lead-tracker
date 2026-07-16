@@ -588,6 +588,37 @@
     const directoryContainer = document.getElementById('directory-view-container');
     const spreadsheetContainer = document.getElementById('spreadsheet-view-container');
 
+    // Basic date standard normalization clean up handler
+    function cleanIncomingDate(val) {
+      if (!val) return '';
+      let text = val.toString().trim();
+      if (!text) return '';
+      
+      // If it looks like an Excel serialized serial date number
+      if (!isNaN(text) && text.length > 4) {
+        try {
+          const excelDate = parseInt(text);
+          const dateObj = new Date((excelDate - 25569) * 86400 * 1000);
+          if (!isNaN(dateObj.getTime())) {
+            return dateObj.toISOString().split('T')[0];
+          }
+        } catch(e){}
+      }
+      
+      // If it is already typed out as MM/DD/YYYY or MM/DD/YY
+      if (text.includes('/')) {
+        const parts = text.split('/');
+        if (parts.length === 3) {
+          let mm = parts[0].padStart(2, '0');
+          let dd = parts[1].padStart(2, '0');
+          let yy = parts[2];
+          if (yy.length === 2) yy = '20' + yy;
+          return `${yy}-${mm}-${dd}`;
+        }
+      }
+      return text;
+    }
+
     function formatDateToMDY(dateString) {
       if (!dateString) return '';
       const parts = dateString.split('-');
@@ -599,7 +630,11 @@
     }
 
     document.addEventListener('DOMContentLoaded', () => {
-      renderApp();
+      try {
+        renderApp();
+      } catch (err) {
+        console.error('renderApp failed:', err);
+      }
       setupListeners();
       lucide.createIcons();
     });
@@ -666,7 +701,6 @@
       }
     }
 
-    // --- VIEW 1: DIRECTORY LAYOUT ---
     function renderEntriesDirectory(items) {
       leadsTableBody.innerHTML = items.map(lead => {
         let statusClass = 'status-default';
@@ -772,7 +806,6 @@
       lucide.createIcons();
     }
 
-    // --- VIEW 2: SPREADSHEET LAYOUT ---
     function renderEntriesSpreadsheet(items) {
       document.getElementById('sheet-row-count').textContent = `${items.length} spreadsheet rows active`;
       sheetTableBody.innerHTML = items.map((lead, index) => {
@@ -808,13 +841,11 @@
       );
     }
 
-    // --- EVENT HANDLERS ---
     function setupListeners() {
       searchInput.addEventListener('input', filterAndProcessData);
       industryFilter.addEventListener('change', filterAndProcessData);
       cityFilter.addEventListener('change', filterAndProcessData);
 
-      // View Toggles
       viewDirBtn.addEventListener('click', () => {
         currentView = 'directory';
         viewDirBtn.className = "px-4 py-2 text-xs font-bold rounded-lg transition-all bg-white text-[#132e2f] shadow-sm";
@@ -1043,6 +1074,7 @@
       showToast('Downloaded Excel directory', 'download-cloud');
     }
 
+    // --- SMART HEURISTIC SPREADSHEET IMPORT ---
     function parseUploadedSpreadsheet(e) {
       const file = e.target.files[0];
       if (!file) return;
@@ -1064,9 +1096,11 @@
             return {
               id: (Date.now() + index).toString(),
               company: lookUpCol(row, ['business name', 'company', 'business', 'brand', 'firm']) || '',
-              name: lookUpCol(row, ['owner', 'ceo', 'name', 'representative', 'person']) || '',
+              // Explicitly avoiding "Business name" so it doesn't win the substring match on "name"
+              name: lookUpColStrict(row, ['owner', 'ceo', 'representative', 'person', 'name'], ['business', 'company name', 'brand']),
               website: lookUpCol(row, ['website', 'site', 'web']) || '',
-              email: lookUpCol(row, ['email address', 'email', 'e-mail']) || '',
+              // Explicitly avoiding outreach headers for main email mapping (space variants included, since "Email 1" has a space)
+              email: lookUpColStrict(row, ['email address', 'email', 'e-mail', 'main email', 'contact email'], ['email1', 'email 1', 'email2', 'email 2', 'email3', 'email 3', 'sent', 'outreach']),
               phone: lookUpCol(row, ['phone number', 'phone', 'tel', 'mobile']) || '',
               years: lookUpCol(row, ['yrs in business', 'years', 'yrs']) || '',
               sponsorships: lookUpCol(row, ['sponsorships', 'sponsorship']) || '',
@@ -1074,9 +1108,10 @@
               cityState: lookUpCol(row, ['city and state', 'city', 'state', 'location', 'citystate']) || '',
               notes: lookUpCol(row, ['notes', 'remarks', 'comments']) || '',
               status: 'default',
-              email1: lookUpCol(row, ['email1', 'email 1', 'sent 1', 'first email']) || '',
-              email2: lookUpCol(row, ['email2', 'email 2', 'sent 2', 'second email']) || '',
-              email3: lookUpCol(row, ['email3', 'email 3', 'sent 3', 'third email']) || ''
+              // Robust multi-phrase mapping logic for Email 1, 2, and 3 sent logs
+              email1: cleanIncomingDate(lookUpCol(row, ['email1', 'email 1', 'sent 1', 'outreach 1', 'e1', 'first email'])),
+              email2: cleanIncomingDate(lookUpCol(row, ['email2', 'email 2', 'sent 2', 'outreach 2', 'e2', 'second email'])),
+              email3: cleanIncomingDate(lookUpCol(row, ['email3', 'email 3', 'sent 3', 'outreach 3', 'e3', 'third email']))
             };
           });
 
@@ -1099,6 +1134,19 @@
       for (const key of Object.keys(row)) {
         const rowKeyLower = key.toLowerCase().trim();
         if (keys.some(k => rowKeyLower.includes(k))) {
+          return row[key].toString().trim();
+        }
+      }
+      return '';
+    }
+
+    // Exclude mapping collisions between main contact email and outreach logs
+    function lookUpColStrict(row, allowedKeys, blockedKeys) {
+      for (const key of Object.keys(row)) {
+        const rowKeyLower = key.toLowerCase().trim();
+        const isAllowed = allowedKeys.some(k => rowKeyLower.includes(k));
+        const isBlocked = blockedKeys.some(k => rowKeyLower.includes(k));
+        if (isAllowed && !isBlocked) {
           return row[key].toString().trim();
         }
       }
