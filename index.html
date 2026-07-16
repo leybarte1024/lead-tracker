@@ -171,6 +171,23 @@
       animation: revealUp 500ms ease both;
     }
 
+    .sheet-grid th, .sheet-grid td {
+      border: 1px solid #ded8ca !important;
+      font-family: monospace;
+      font-size: 12px;
+      padding: 6px 12px !important;
+    }
+    .sheet-grid input {
+      background: transparent;
+      border: none;
+      width: 100%;
+      height: 100%;
+      outline: none;
+    }
+    .sheet-grid input:focus {
+      background: #fffdf5;
+    }
+
     @keyframes revealUp {
       from { opacity: 0; transform: translateY(12px); }
       to { opacity: 1; transform: translateY(0); }
@@ -233,14 +250,13 @@
 <body style="background: radial-gradient(rgb(248, 223, 211), rgb(245, 240, 230), rgb(233, 238, 231));">
   <div class="app-shell atmosphere w-full min-h-screen">
     
-    <!-- HEADER -->
     <header class="w-full border-b border-white/10" style="background: linear-gradient(135deg, rgb(19, 46, 47), rgb(37, 76, 73));">
       <div class="content-width py-7 md:py-10">
         <div class="flex flex-col gap-7 lg:flex-row lg:items-end lg:justify-between">
           <div class="max-w-3xl reveal">
             <div class="mb-4 flex items-center gap-3">
               <span class="grid h-11 w-11 place-items-center rounded-2xl bg-white/10 text-[#f8c8b8]"> 
-                <i data-lucide="contact-round"></i> 
+                <i data-lucide="users"></i> 
               </span>
               <p class="font-bold uppercase tracking-[0.2em]" style="color: rgb(248, 200, 184); font-size: 12px; letter-spacing: 0.12rem;">Consolidated prospecting base</p>
             </div>
@@ -262,7 +278,6 @@
           </div>
         </div>
         
-        <!-- DASHBOARD METRICS -->
         <div class="mt-8 grid gap-3 sm:grid-cols-2 reveal">
           <article class="rounded-2xl border border-white/10 p-4" style="background: rgba(255, 255, 255, 0.08);">
             <p class="font-semibold text-xs text-[#b9cfca]">Total Leads</p>
@@ -276,18 +291,24 @@
       </div>
     </header>
 
-    <!-- MAIN APP WRAPPER -->
     <main class="content-width py-6 md:py-9">
       <section class="surface reveal overflow-hidden rounded-[1.5rem]">
         
-        <!-- FILTER BAR -->
         <div class="border-b border-[#ded8ca] p-4 md:p-6">
-          <div class="mb-5 flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
+          <div class="mb-5 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
             <div>
               <h2 class="display-font font-bold text-2xl text-[#132e2f]">Consolidated Directory</h2>
               <p class="text-xs text-[#667372]">Search across every field and organize outreach efforts instantly.</p>
             </div>
-            <p id="visible-count" class="text-xs font-semibold text-[#667372]"></p>
+            
+            <div class="flex items-center gap-1 bg-[#ede6d9] p-1 rounded-xl">
+              <button id="view-dir-btn" class="px-4 py-2 text-xs font-bold rounded-lg transition-all bg-white text-[#132e2f] shadow-sm">
+                Directory View
+              </button>
+              <button id="view-sheet-btn" class="px-4 py-2 text-xs font-bold rounded-lg transition-all text-[#667372] hover:text-[#132e2f]">
+                Spreadsheet View
+              </button>
+            </div>
           </div>
           
           <form class="grid gap-4 md:grid-cols-4 items-end" onsubmit="event.preventDefault();">
@@ -318,8 +339,7 @@
           </form>
         </div>
 
-        <!-- LEADS DIRECTORY TABLE -->
-        <div class="overflow-x-auto">
+        <div id="directory-view-container" class="overflow-x-auto">
           <table class="w-full text-left border-collapse">
             <thead>
               <tr class="desktop-table-head bg-[#fbf8f0] text-xs font-bold uppercase tracking-wider text-[#667372] border-b border-[#ded8ca]">
@@ -333,28 +353,49 @@
               </tr>
             </thead>
             <tbody id="leads-table-body">
-              <!-- Rendered Dynamically -->
-            </tbody>
+              </tbody>
           </table>
-          
-          <div id="empty-state" class="hidden p-12 text-center">
-            <div class="mx-auto w-12 h-12 text-[#667372]/50 mb-3">
-              <i data-lucide="folder-open" class="w-full h-full"></i>
-            </div>
-            <p class="font-bold text-lg text-[#132e2f]">No leads match your selection</p>
-            <p class="text-sm text-slate-500 mt-1">Add a new entry or try clearing your filter parameters.</p>
+        </div>
+
+        <div id="spreadsheet-view-container" class="overflow-x-auto hidden">
+          <div class="p-4 bg-slate-100 border-b border-[#ded8ca] text-xs font-semibold text-slate-600 flex justify-between items-center">
+            <span>💡 Double-click or select any email column cell below to easily copy individual or grouped addresses.</span>
+            <span id="sheet-row-count" class="font-bold"></span>
           </div>
+          <table class="w-full text-left border-collapse sheet-grid bg-white">
+            <thead>
+              <tr class="bg-slate-50 text-xs font-bold text-slate-500 uppercase">
+                <th class="w-10">Row</th>
+                <th>Business Name</th>
+                <th>Owner / CEO</th>
+                <th class="bg-indigo-50 text-indigo-900 border-x-2 border-indigo-200">Email Address</th>
+                <th>Website</th>
+                <th>Phone Number</th>
+                <th>Yrs</th>
+                <th>Industry</th>
+                <th>City & State</th>
+              </tr>
+            </thead>
+            <tbody id="sheet-table-body">
+              </tbody>
+          </table>
+        </div>
+          
+        <div id="empty-state" class="hidden p-12 text-center">
+          <div class="mx-auto w-12 h-12 text-[#667372]/50 mb-3">
+            <i data-lucide="folder-open" class="w-full h-full"></i>
+          </div>
+          <p class="font-bold text-lg text-[#132e2f]">No leads match your selection</p>
+          <p class="text-sm text-slate-500 mt-1">Add a new entry or try clearing your filter parameters.</p>
         </div>
       </section>
     </main>
 
-    <!-- TOAST ALERT PANEL -->
     <div id="toast" class="toast fixed bottom-6 left-1/2 -translate-x-1/2 z-50 bg-[#132e2f] text-[#f5f0e6] px-5 py-3 rounded-xl shadow-2xl flex items-center gap-3 text-sm font-medium">
       <span id="toast-icon"></span>
       <span id="toast-message">Action processed</span>
     </div>
 
-    <!-- MODAL: ADD LEAD -->
     <div id="add-modal" class="modal-backdrop fixed inset-0 z-50 flex items-center justify-center p-4 hidden">
       <div class="modal-card surface rounded-[1.5rem] p-6 md:p-8 flex flex-col gap-6">
         <div class="flex items-center justify-between">
@@ -373,639 +414,4 @@
           </div>
           
           <div class="suggest-container">
-            <label class="block text-xs font-bold uppercase tracking-wide text-[#667372] mb-1.5" for="form-name">Owner / CEO</label>
-            <input id="form-name" type="text" class="field" placeholder="e.g. Jessica Ramos" oninput="showSuggest(this, 'name')">
-            <div class="suggest-box hidden" id="suggest-name"></div>
-          </div>
-
-          <div class="suggest-container">
-            <label class="block text-xs font-bold uppercase tracking-wide text-[#667372] mb-1.5" for="form-website">Website</label>
-            <input id="form-website" type="text" class="field" placeholder="e.g. www.apextech.com" oninput="showSuggest(this, 'website')">
-            <div class="suggest-box hidden" id="suggest-website"></div>
-          </div>
-          
-          <div class="suggest-container">
-            <label class="block text-xs font-bold uppercase tracking-wide text-[#667372] mb-1.5" for="form-email">Email Address</label>
-            <input id="form-email" type="email" class="field" placeholder="e.g. jessica@apextech.com" oninput="showSuggest(this, 'email')">
-            <div class="suggest-box hidden" id="suggest-email"></div>
-          </div>
-          
-          <div class="suggest-container">
-            <label class="block text-xs font-bold uppercase tracking-wide text-[#667372] mb-1.5" for="form-phone">Phone Number</label>
-            <input id="form-phone" type="tel" class="field" placeholder="e.g. (515) 555-0199" oninput="showSuggest(this, 'phone')">
-            <div class="suggest-box hidden" id="suggest-phone"></div>
-          </div>
-
-          <div class="suggest-container">
-            <label class="block text-xs font-bold uppercase tracking-wide text-[#667372] mb-1.5" for="form-years">Yrs in Business</label>
-            <input id="form-years" type="text" class="field" placeholder="e.g. 5" oninput="showSuggest(this, 'years')">
-            <div class="suggest-box hidden" id="suggest-years"></div>
-          </div>
-
-          <div>
-            <label class="block text-xs font-bold uppercase tracking-wide text-[#667372] mb-1.5" for="form-sponsorships">Sponsorships Involved With</label>
-            <input id="form-sponsorships" type="text" class="field" placeholder="e.g. Gold Sponsor, Community Partner">
-          </div>
-          
-          <div class="suggest-container">
-            <label class="block text-xs font-bold uppercase tracking-wide text-[#667372] mb-1.5" for="form-industry">Industry</label>
-            <input id="form-industry" type="text" class="field" placeholder="e.g. Technology, Logistics" oninput="showSuggest(this, 'industry')">
-            <div class="suggest-box hidden" id="suggest-industry"></div>
-          </div>
-
-          <div class="suggest-container sm:col-span-2">
-            <label class="block text-xs font-bold uppercase tracking-wide text-[#667372] mb-1.5" for="form-cityState">City and State</label>
-            <input id="form-cityState" type="text" class="field" placeholder="e.g. Austin, TX" oninput="showSuggest(this, 'cityState')">
-            <div class="suggest-box hidden" id="suggest-cityState"></div>
-          </div>
-          
-          <div class="sm:col-span-2">
-            <label class="block text-xs font-bold uppercase tracking-wide text-[#667372] mb-1.5" for="form-notes">Notes</label>
-            <textarea id="form-notes" rows="3" class="field resize-none" placeholder="Enter custom logs, details, or records here..."></textarea>
-          </div>
-          
-          <div class="sm:col-span-2 flex justify-end gap-3 mt-4">
-            <button type="button" class="close-add-modal px-6 py-2.5 border border-[#cbc5b8] rounded-full hover:bg-black/5 font-bold transition">Cancel</button>
-            <button type="submit" class="px-6 py-2.5 bg-[#ee6b4d] text-white rounded-full hover:bg-[#cf4f34] font-bold transition shadow-lg">Save Lead</button>
-          </div>
-        </form>
-      </div>
-    </div>
-
-    <!-- MODAL: BULK FILE IMPORT -->
-    <div id="import-modal" class="modal-backdrop fixed inset-0 z-50 flex items-center justify-center p-4 hidden">
-      <div class="modal-card surface rounded-[1.5rem] p-6 md:p-8 max-w-md flex flex-col gap-6">
-        <div class="flex items-center justify-between">
-          <h3 class="display-font text-2xl font-bold">Import spreadsheet list</h3>
-          <button type="button" class="close-import-modal p-2 hover:bg-black/5 rounded-full transition">
-            <i data-lucide="x" class="h-6 w-6"></i>
-          </button>
-        </div>
-        <p class="text-sm text-[#667372] leading-relaxed">
-          Upload any <strong>.xlsx</strong> or <strong>.csv</strong> spreadsheet. For best compatibility, your headers should loosely align to: 
-          <br><strong class="text-slate-800">Company, Owner, Website, Email, Phone, Years, Sponsorships, Industry, City State, Notes</strong>.
-        </p>
-        
-        <div class="border-2 border-dashed border-[#cbc5b8] hover:border-[#ee6b4d] rounded-2xl p-8 text-center transition cursor-pointer relative bg-[#fffefb]">
-          <input type="file" id="spreadsheet-file" class="absolute inset-0 opacity-0 cursor-pointer" accept=".csv,.xlsx,.xls">
-          <div class="flex flex-col items-center gap-2">
-            <div class="h-10 w-10 text-[#ee6b4d]">
-              <i data-lucide="upload-cloud" class="h-full w-full"></i>
-            </div>
-            <p class="font-bold text-sm">Select Excel / CSV File</p>
-          </div>
-        </div>
-        
-        <div class="flex justify-end">
-          <button type="button" class="close-import-modal px-6 py-2.5 border border-[#cbc5b8] rounded-full hover:bg-black/5 font-bold transition">Close</button>
-        </div>
-      </div>
-    </div>
-
-  </div>
-
-  <!-- MAIN SCRIPT CONTROLLERS -->
-  <script>
-    // --- DATABASE CONFIGURATION (Updated with US Default Data) ---
-    let leads = JSON.parse(localStorage.getItem('consolidated_leads_v3_us')) || [
-      {
-        id: '1',
-        company: 'Apex Tech Solutions',
-        name: 'Jessica Ramos',
-        website: 'www.apextech.com',
-        email: 'jessica.r@apextech.com',
-        phone: '(515) 555-0199',
-        years: '8',
-        sponsorships: 'Gold Sponsor',
-        industry: 'Technology',
-        cityState: 'Austin, TX',
-        notes: 'Interested in software integrations.',
-        status: 'default',
-        email1: '2026-07-01',
-        email2: '2026-07-08',
-        email3: ''
-      },
-      {
-        id: '2',
-        company: 'GreenRoute Logistics',
-        name: 'Romeo Santos',
-        website: 'www.greenroutelogistics.com',
-        email: 'romeo@greenroute.com',
-        phone: '(305) 555-0143',
-        years: '3',
-        sponsorships: 'Silver Sponsor',
-        industry: 'Logistics',
-        cityState: 'Miami, FL',
-        notes: 'Inquired about route coordination features.',
-        status: 'appointment_set',
-        email1: '2026-07-02',
-        email2: '',
-        email3: ''
-      }
-    ];
-
-    const leadsTableBody = document.getElementById('leads-table-body');
-    const emptyState = document.getElementById('empty-state');
-    const totalLeadsEl = document.getElementById('total-leads');
-    const totalAppointmentsEl = document.getElementById('total-appointments');
-
-    const searchInput = document.getElementById('search-input');
-    const industryFilter = document.getElementById('industry-filter');
-    const cityFilter = document.getElementById('city-filter');
-    const clearFiltersBtn = document.getElementById('clear-filters');
-    const addLeadForm = document.getElementById('add-lead-form');
-    const fileInput = document.getElementById('spreadsheet-file');
-
-    const addModal = document.getElementById('add-modal');
-    const importModal = document.getElementById('import-modal');
-    const openAddModalBtn = document.getElementById('open-add-modal');
-    const openImportModalBtn = document.getElementById('open-import-modal');
-    const closeAddModalBtns = document.querySelectorAll('.close-add-modal');
-    const closeImportModalBtns = document.querySelectorAll('.close-import-modal');
-
-    const exportBtn = document.getElementById('export-leads-button');
-
-    // --- DATE FORMATTER: YYYY-MM-DD -> MM/DD/YY (US Standard) ---
-    function formatDateToMDY(dateString) {
-      if (!dateString) return '';
-      const parts = dateString.split('-');
-      if (parts.length !== 3) return dateString;
-      const year = parts[0].slice(-2);
-      const month = parts[1];
-      const day = parts[2];
-      return `${month}/${day}/${year}`;
-    }
-
-    document.addEventListener('DOMContentLoaded', () => {
-      renderApp();
-      setupListeners();
-      lucide.createIcons();
-    });
-
-    function renderApp() {
-      const appointmentCount = leads.filter(l => l.status === 'appointment_set').length;
-      totalLeadsEl.textContent = leads.length;
-      totalAppointmentsEl.textContent = appointmentCount;
-
-      const activeIndustries = new Set(leads.map(l => (l.industry || '').trim()).filter(Boolean));
-      const activeCities = new Set(leads.map(l => (l.cityState || '').trim()).filter(Boolean));
-      
-      populateFilter(industryFilter, Array.from(activeIndustries), 'All industries');
-      populateFilter(cityFilter, Array.from(activeCities), 'All cities & states');
-
-      filterAndProcessData();
-    }
-
-    function populateFilter(dropdown, items, defaultLabel) {
-      const savedValue = dropdown.value;
-      dropdown.innerHTML = `<option value="">${defaultLabel}</option>`;
-      items.sort().forEach(item => {
-        const option = document.createElement('option');
-        option.value = item;
-        option.textContent = item;
-        if (item === savedValue) option.selected = true;
-        dropdown.appendChild(option);
-      });
-    }
-
-    function filterAndProcessData() {
-      const searchVal = searchInput.value.toLowerCase().trim();
-      const selectedInd = industryFilter.value;
-      const selectedCity = cityFilter.value;
-
-      const filtered = leads.filter(lead => {
-        const matchesSearch = 
-          (lead.company || '').toLowerCase().includes(searchVal) ||
-          (lead.name || '').toLowerCase().includes(searchVal) ||
-          (lead.email || '').toLowerCase().includes(searchVal) ||
-          (lead.cityState || '').toLowerCase().includes(searchVal) ||
-          (lead.sponsorships || '').toLowerCase().includes(searchVal) ||
-          (lead.notes || '').toLowerCase().includes(searchVal);
-
-        const matchesInd = !selectedInd || lead.industry === selectedInd;
-        const matchesCity = !selectedCity || lead.cityState === selectedCity;
-
-        return matchesSearch && matchesInd && matchesCity;
-      });
-
-      document.getElementById('visible-count').textContent = `Showing ${filtered.length} of ${leads.length} records`;
-
-      if (filtered.length === 0) {
-        leadsTableBody.innerHTML = '';
-        emptyState.classList.remove('hidden');
-      } else {
-        emptyState.classList.add('hidden');
-        renderEntries(filtered);
-      }
-    }
-
-    function renderEntries(items) {
-      leadsTableBody.innerHTML = items.map(lead => {
-        let statusClass = 'status-default';
-        if (lead.status === 'appointment_set') statusClass = 'status-appointment_set';
-        if (lead.status === 'email_bounced') statusClass = 'status-email_bounced';
-
-        // US standard formatted email dates
-        const fEmail1 = formatDateToMDY(lead.email1);
-        const fEmail2 = formatDateToMDY(lead.email2);
-        const fEmail3 = formatDateToMDY(lead.email3);
-
-        const email1Badge = lead.email1 ? `<span class="bg-indigo-100 text-indigo-800 text-[10px] px-2 py-0.5 rounded font-mono" title="Sent: ${fEmail1}">E1: ${fEmail1}</span>` : '<span class="text-slate-300 text-[10px] border border-dashed px-1.5 rounded font-mono">E1</span>';
-        const email2Badge = lead.email2 ? `<span class="bg-indigo-100 text-indigo-800 text-[10px] px-2 py-0.5 rounded font-mono" title="Sent: ${fEmail2}">E2: ${fEmail2}</span>` : '<span class="text-slate-300 text-[10px] border border-dashed px-1.5 rounded font-mono">E2</span>';
-        const email3Badge = lead.email3 ? `<span class="bg-indigo-100 text-indigo-800 text-[10px] px-2 py-0.5 rounded font-mono" title="Sent: ${fEmail3}">E3: ${fEmail3}</span>` : '<span class="text-slate-300 text-[10px] border border-dashed px-1.5 rounded font-mono">E3</span>';
-
-        return `
-          <tr class="lead-row cursor-pointer ${statusClass}" data-lead-id="${lead.id}">
-            <td class="py-4 px-6">
-              <button class="detail-chevron text-[#667372] p-1 hover:bg-black/5 rounded-lg transition" aria-label="Details dropdown">
-                <i data-lucide="chevron-down" class="h-4.5 w-4.5"></i>
-              </button>
-            </td>
-            <td class="py-4 px-6 text-sm font-bold" data-mobile-label="Business Name">
-              ${safeText(lead.company)}
-              ${lead.website ? `<div class="text-xs text-blue-600 font-normal mt-0.5"><a href="https://${lead.website}" target="_blank" onclick="event.stopPropagation();" class="hover:underline">${safeText(lead.website)}</a></div>` : ''}
-            </td>
-            <td class="py-4 px-6 text-sm" data-mobile-label="Owner / CEO">
-              <div class="font-medium">${safeText(lead.name || 'N/A')}</div>
-              ${lead.email ? `<div class="text-xs text-[#667372] mt-0.5">${safeText(lead.email)}</div>` : ''}
-              ${lead.phone ? `<div class="text-[11px] text-[#667372]">${safeText(lead.phone)}</div>` : ''}
-            </td>
-            <td class="py-4 px-6 text-sm" data-mobile-label="Location">
-              <span class="text-xs text-slate-700">${safeText(lead.cityState || 'N/A')}</span>
-            </td>
-            <td class="py-4 px-6 text-sm" data-mobile-label="Outreach History">
-              <div class="flex items-center gap-1.5">
-                ${email1Badge}
-                ${email2Badge}
-                ${email3Badge}
-              </div>
-            </td>
-            <td class="py-4 px-6 text-sm" data-mobile-label="Industry">
-              <span class="inline-flex items-center rounded-full bg-[#dbe3d6] px-2.5 py-0.5 text-xs font-medium text-[#2d4030]">
-                ${safeText(lead.industry || 'General')}
-              </span>
-            </td>
-            <td class="py-4 px-6 text-right" data-mobile-label="Controls">
-              <div class="lead-actions flex items-center justify-end gap-2" onclick="event.stopPropagation()">
-                <select onchange="updateLeadStatus('${lead.id}', this.value)" class="text-xs border border-[#cbc5b8] rounded px-2 py-1 bg-white font-semibold text-[#132e2f]">
-                  <option value="default" ${lead.status === 'default' ? 'selected' : ''}>Lead (Default)</option>
-                  <option value="appointment_set" ${lead.status === 'appointment_set' ? 'selected' : ''}>📅 Appointment Set</option>
-                  <option value="email_bounced" ${lead.status === 'email_bounced' ? 'selected' : ''}>🚫 Email Bounced</option>
-                </select>
-                <button onclick="deleteRow('${lead.id}')" class="p-1 text-slate-400 hover:text-red-500 rounded transition" title="Delete lead">
-                  <i data-lucide="trash-2" class="h-4.5 w-4.5"></i>
-                </button>
-              </div>
-            </td>
-          </tr>
-          
-          <!-- ACCORDION EXPANSION DETAIL PANEL -->
-          <tr class="bg-white/40 hidden" data-parent-lead-id="${lead.id}">
-            <td colspan="7" class="p-0 border-t border-[#ded8ca]">
-              <div class="detail-panel">
-                <div class="p-6 grid md:grid-cols-3 gap-6">
-                  
-                  <div>
-                    <h4 class="text-xs font-bold uppercase tracking-wider text-[#667372] mb-1.5">Lead Details</h4>
-                    <p class="text-sm font-semibold text-[#132e2f]">${safeText(lead.company || 'Unnamed Business')}</p>
-                    <p class="text-xs text-slate-700 mt-1">Owner: ${safeText(lead.name || 'N/A')}</p>
-                    <p class="text-xs text-[#667372]">Industry: ${safeText(lead.industry || 'N/A')}</p>
-                    <p class="text-xs text-[#667372]">Years in Business: ${safeText(lead.years || 'N/A')}</p>
-                    <p class="text-xs text-[#667372]">Location: ${safeText(lead.cityState || 'N/A')}</p>
-                    <p class="text-xs text-[#667372]">Sponsorships: ${safeText(lead.sponsorships || 'None')}</p>
-                  </div>
-                  
-                  <div onclick="event.stopPropagation()">
-                    <h4 class="text-xs font-bold uppercase tracking-wider text-[#667372] mb-2">Track 3 Outreach Emails</h4>
-                    <div class="space-y-2">
-                      <div class="flex items-center justify-between gap-2">
-                        <label class="text-xs text-slate-600 font-semibold">Email 1:</label>
-                        <input type="date" value="${lead.email1 || ''}" onchange="updateOutreachDate('${lead.id}', 'email1', this.value)" class="text-xs border border-[#cbc5b8] rounded px-2 py-1 bg-white font-semibold">
-                      </div>
-                      <div class="flex items-center justify-between gap-2">
-                        <label class="text-xs text-slate-600 font-semibold">Email 2:</label>
-                        <input type="date" value="${lead.email2 || ''}" onchange="updateOutreachDate('${lead.id}', 'email2', this.value)" class="text-xs border border-[#cbc5b8] rounded px-2 py-1 bg-white font-semibold">
-                      </div>
-                      <div class="flex items-center justify-between gap-2">
-                        <label class="text-xs text-slate-600 font-semibold">Email 3:</label>
-                        <input type="date" value="${lead.email3 || ''}" onchange="updateOutreachDate('${lead.id}', 'email3', this.value)" class="text-xs border border-[#cbc5b8] rounded px-2 py-1 bg-white font-semibold">
-                      </div>
-                    </div>
-                  </div>
-                  
-                  <div onclick="event.stopPropagation()">
-                    <h4 class="text-xs font-bold uppercase tracking-wider text-[#667372] mb-1.5">Interactive Notes</h4>
-                    <textarea onchange="updateRowNotes('${lead.id}', this.value)" rows="3" class="w-full text-xs italic text-slate-700 bg-white border border-[#ded8ca] rounded-xl p-3 leading-relaxed whitespace-pre-wrap" placeholder="Edit notes directly...">${lead.notes ? safeText(lead.notes) : ''}</textarea>
-                  </div>
-                  
-                </div>
-              </div>
-            </td>
-          </tr>
-        `;
-      }).join('');
-
-      lucide.createIcons();
-    }
-
-    function safeText(str) {
-      if (!str) return '';
-      return str.replace(/[&<>'"]/g, 
-        tag => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[tag] || tag)
-      );
-    }
-
-    function setupListeners() {
-      searchInput.addEventListener('input', filterAndProcessData);
-      industryFilter.addEventListener('change', filterAndProcessData);
-      cityFilter.addEventListener('change', filterAndProcessData);
-
-      leadsTableBody.addEventListener('click', (e) => {
-        const row = e.target.closest('.lead-row');
-        if (!row || e.target.closest('select') || e.target.closest('button') && !e.target.closest('.detail-chevron')) return;
-
-        const id = row.dataset.leadId;
-        const detailRow = document.querySelector(`[data-parent-lead-id="${id}"]`);
-        
-        row.classList.toggle('is-expanded');
-        if (detailRow.classList.contains('hidden')) {
-          detailRow.classList.remove('hidden');
-          setTimeout(() => {
-            detailRow.querySelector('.detail-panel').style.gridTemplateRows = '1fr';
-          }, 10);
-        } else {
-          detailRow.querySelector('.detail-panel').style.gridTemplateRows = '0fr';
-          setTimeout(() => {
-            detailRow.classList.add('hidden');
-          }, 220);
-        }
-      });
-
-      clearFiltersBtn.addEventListener('click', () => {
-        searchInput.value = '';
-        industryFilter.value = '';
-        cityFilter.value = '';
-        filterAndProcessData();
-        showToast('Cleaned all directory filters', 'filter-x');
-      });
-
-      openAddModalBtn.addEventListener('click', () => addModal.classList.remove('hidden'));
-      openImportModalBtn.addEventListener('click', () => importModal.classList.remove('hidden'));
-
-      closeAddModalBtns.forEach(btn => btn.addEventListener('click', () => addModal.classList.add('hidden')));
-      closeImportModalBtns.forEach(btn => btn.addEventListener('click', () => importModal.classList.add('hidden')));
-
-      addLeadForm.addEventListener('submit', handleAddLeadSubmit);
-      fileInput.addEventListener('change', parseUploadedSpreadsheet);
-      exportBtn.addEventListener('click', handleSheetExport);
-
-      document.addEventListener('click', (e) => {
-        if (!e.target.closest('.suggest-container')) {
-          document.querySelectorAll('.suggest-box').forEach(box => box.classList.add('hidden'));
-        }
-      });
-    }
-
-    window.showSuggest = function(inputEl, fieldName) {
-      const value = inputEl.value.toLowerCase().trim();
-      const suggestBox = document.getElementById(`suggest-${fieldName}`);
-      
-      if (!value) {
-        suggestBox.classList.add('hidden');
-        return;
-      }
-
-      const matchedSuggestions = Array.from(new Set(
-        leads.map(l => l[fieldName] ? l[fieldName].toString().trim() : '')
-             .filter(v => v.toLowerCase().includes(value))
-      )).slice(0, 5);
-
-      if (matchedSuggestions.length === 0) {
-        suggestBox.classList.add('hidden');
-        return;
-      }
-
-      suggestBox.innerHTML = matchedSuggestions.map(item => `
-        <div class="suggest-item hover:bg-slate-100 p-2 text-xs font-medium cursor-pointer" onclick="selectSuggestion('${fieldName}', '${escapeJS(item)}')">
-          ${safeText(item)}
-        </div>
-      `).join('');
-      suggestBox.classList.remove('hidden');
-    };
-
-    window.selectSuggestion = function(fieldName, value) {
-      const inputEl = document.getElementById(`form-${fieldName}`);
-      inputEl.value = value;
-      document.getElementById(`suggest-${fieldName}`).classList.add('hidden');
-      showToast(`Matched existing ${fieldName}: "${value}"`, 'alert-circle');
-    };
-
-    function escapeJS(str) {
-      return str.replace(/'/g, "\\'");
-    }
-
-    window.updateOutreachDate = function(leadId, field, dateVal) {
-      const lead = leads.find(l => l.id === leadId);
-      if (lead) {
-        lead[field] = dateVal;
-        saveLeads();
-        renderApp();
-        showToast('Outreach date updated', 'calendar');
-      }
-    };
-
-    window.updateRowNotes = function(leadId, notesVal) {
-      const lead = leads.find(l => l.id === leadId);
-      if (lead) {
-        lead.notes = notesVal;
-        saveLeads();
-        showToast('Notes saved successfully', 'edit-3');
-      }
-    };
-
-    window.updateLeadStatus = function(leadId, statusVal) {
-      const lead = leads.find(l => l.id === leadId);
-      if (lead) {
-        lead.status = statusVal;
-        saveLeads();
-        renderApp();
-        if (statusVal === 'default') {
-          showToast('Lead restored to default color', 'refresh-cw');
-        } else {
-          showToast(`Marked as ${statusVal.replace('_', ' ')}`, 'check-circle');
-        }
-      }
-    };
-
-    function handleAddLeadSubmit(e) {
-      e.preventDefault();
-
-      const company = document.getElementById('form-company').value.trim();
-      const name = document.getElementById('form-name').value.trim();
-      const website = document.getElementById('form-website').value.trim();
-      const email = document.getElementById('form-email').value.trim();
-      const phone = document.getElementById('form-phone').value.trim();
-      const years = document.getElementById('form-years').value.trim();
-      const sponsorships = document.getElementById('form-sponsorships').value.trim();
-      const industry = document.getElementById('form-industry').value.trim();
-      const cityState = document.getElementById('form-cityState').value.trim();
-      const notes = document.getElementById('form-notes').value.trim();
-
-      if (company) {
-        const duplicateFound = leads.some(l => l.company && l.company.toLowerCase() === company.toLowerCase());
-        if (duplicateFound) {
-          if (!confirm(`Warning: A business profile for "${company}" already exists. Save anyway?`)) {
-            return;
-          }
-        }
-      }
-
-      const freshLead = {
-        id: Date.now().toString(),
-        company,
-        name,
-        website,
-        email,
-        phone,
-        years,
-        sponsorships,
-        industry,
-        cityState,
-        notes,
-        status: 'default',
-        email1: '',
-        email2: '',
-        email3: ''
-      };
-
-      leads.unshift(freshLead);
-      saveLeads();
-      addLeadForm.reset();
-      addModal.classList.add('hidden');
-      showToast('Lead entered into directory', 'check-circle');
-      renderApp();
-    }
-
-    window.deleteRow = function(id) {
-      if (confirm('Permanently remove this lead from database?')) {
-        leads = leads.filter(l => l.id !== id);
-        saveLeads();
-        showToast('Lead entry removed', 'trash');
-        renderApp();
-      }
-    };
-
-    function saveLeads() {
-      localStorage.setItem('consolidated_leads_v3_us', JSON.stringify(leads));
-    }
-
-    function handleSheetExport() {
-      if (leads.length === 0) {
-        showToast('No leads available to export.', 'alert-circle');
-        return;
-      }
-
-      const formatted = leads.map(lead => ({
-        'Business Name': lead.company || '',
-        'Owner / CEO': lead.name || '',
-        'Website': lead.website || '',
-        'Email Address': lead.email || '',
-        'Phone Number': lead.phone || '',
-        'Yrs in Business': lead.years || '',
-        'Sponsorships': lead.sponsorships || '',
-        'Industry': lead.industry || '',
-        'City and State': lead.cityState || '',
-        'Email 1 Sent': formatDateToMDY(lead.email1),
-        'Email 2 Sent': formatDateToMDY(lead.email2),
-        'Email 3 Sent': formatDateToMDY(lead.email3),
-        'Lead Status': lead.status,
-        'Notes': lead.notes || ''
-      }));
-
-      const wb = XLSX.utils.book_new();
-      const ws = XLSX.utils.json_to_sheet(formatted);
-      XLSX.utils.book_append_sheet(wb, ws, "Lead Base");
-      
-      XLSX.writeFile(wb, "consolidated-leads-list.xlsx");
-      showToast('Downloaded Excel directory', 'download-cloud');
-    }
-
-    function parseUploadedSpreadsheet(e) {
-      const file = e.target.files[0];
-      if (!file) return;
-
-      const reader = new FileReader();
-      reader.onload = function(evt) {
-        try {
-          const binaryStr = evt.target.result;
-          const workbook = XLSX.read(binaryStr, { type: 'binary' });
-          const activeSheet = workbook.SheetNames[0];
-          const rawData = XLSX.utils.sheet_to_json(workbook.Sheets[activeSheet]);
-
-          if (rawData.length === 0) {
-            showToast('The file appears to contain no records.', 'alert-circle');
-            return;
-          }
-
-          const parsedList = rawData.map((row, index) => {
-            return {
-              id: (Date.now() + index).toString(),
-              company: lookUpCol(row, ['business name', 'company', 'business', 'brand', 'firm']) || '',
-              name: lookUpCol(row, ['owner', 'ceo', 'name', 'representative', 'person']) || '',
-              website: lookUpCol(row, ['website', 'site', 'web']) || '',
-              email: lookUpCol(row, ['email address', 'email', 'e-mail']) || '',
-              phone: lookUpCol(row, ['phone number', 'phone', 'tel', 'mobile']) || '',
-              years: lookUpCol(row, ['yrs in business', 'years', 'yrs']) || '',
-              sponsorships: lookUpCol(row, ['sponsorships', 'sponsorship']) || '',
-              industry: lookUpCol(row, ['industry', 'sector']) || '',
-              cityState: lookUpCol(row, ['city and state', 'city', 'state', 'location', 'citystate']) || '',
-              notes: lookUpCol(row, ['notes', 'remarks', 'comments']) || '',
-              status: 'default',
-              email1: lookUpCol(row, ['email1', 'email 1', 'sent 1', 'first email']) || '',
-              email2: lookUpCol(row, ['email2', 'email 2', 'sent 2', 'second email']) || '',
-              email3: lookUpCol(row, ['email3', 'email 3', 'sent 3', 'third email']) || ''
-            };
-          });
-
-          leads = [...parsedList, ...leads];
-          saveLeads();
-          importModal.classList.add('hidden');
-          showToast(`Successfully imported ${parsedList.length} leads!`, 'upload-cloud');
-          renderApp();
-          fileInput.value = '';
-        } catch (err) {
-          showToast('An error occurred processing file data.', 'alert-circle');
-          console.error(err);
-        }
-      };
-
-      reader.readAsBinaryString(file);
-    }
-
-    function lookUpCol(row, keys) {
-      for (const key of Object.keys(row)) {
-        const rowKeyLower = key.toLowerCase().trim();
-        if (keys.some(k => rowKeyLower.includes(k))) {
-          return row[key].toString().trim();
-        }
-      }
-      return '';
-    }
-
-    function showToast(text, iconName = 'info') {
-      const toast = document.getElementById('toast');
-      const toastMsg = document.getElementById('toast-message');
-      const toastIcon = document.getElementById('toast-icon');
-
-      toastMsg.textContent = text;
-      toastIcon.innerHTML = `<i data-lucide="${iconName}" class="h-4.5 w-4.5"></i>`;
-      lucide.createIcons();
-
-      toast.classList.add('is-visible');
-      setTimeout(() => {
-        toast.classList.remove('is-visible');
-      }, 3500);
-    }
-  </script>
-</body>
-</html>
+            <label class="block text-xs font-bold uppercase tracking-wide text-[#667372] mb-1.5" for="form-name">Owner /
