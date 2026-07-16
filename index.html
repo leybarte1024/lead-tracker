@@ -1,0 +1,1024 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Community Prospecting Desk - Lead Tracker</title>
+  <script src="https://cdn.tailwindcss.com/3.4.17"></script>
+  <script src="https://cdn.jsdelivr.net/npm/lucide@0.263.0/dist/umd/lucide.min.js"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Fraunces:opsz,wght@9..144,600;9..144,700&display=swap" rel="stylesheet">
+  
+  <style>
+    :root {
+      --ink: #132e2f;
+      --muted: #667372;
+      --cream: #f5f0e6;
+      --paper: #fffdf7;
+      --coral: #ee6b4d;
+      --coral-dark: #cf4f34;
+      --sage: #dbe3d6;
+      --line: #ded8ca;
+      --shadow: 0 18px 50px rgba(19, 46, 47, 0.11);
+    }
+
+    * { box-sizing: border-box; }
+    html { background: var(--cream); }
+
+    body {
+      width: 100%;
+      margin: 0;
+      font-family: "DM Sans", sans-serif;
+      color: var(--ink);
+      min-height: 100%;
+    }
+
+    .display-font { font-family: "Fraunces", serif; }
+
+    .atmosphere {
+      position: relative;
+      isolation: isolate;
+      overflow-x: hidden;
+    }
+
+    .atmosphere::before {
+      content: "";
+      position: fixed;
+      z-index: -1;
+      width: 30rem;
+      height: 30rem;
+      right: -10rem;
+      top: -12rem;
+      border-radius: 999px;
+      background: rgba(238, 107, 77, 0.14);
+      filter: blur(2px);
+      pointer-events: none;
+    }
+
+    .atmosphere::after {
+      content: "";
+      position: fixed;
+      z-index: -1;
+      width: 24rem;
+      height: 24rem;
+      left: -11rem;
+      bottom: -10rem;
+      border-radius: 999px;
+      background: rgba(79, 112, 104, 0.12);
+      pointer-events: none;
+    }
+
+    .surface {
+      background: rgba(255, 253, 247, 0.95);
+      border: 1px solid rgba(222, 216, 202, 0.9);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(12px);
+    }
+
+    .focus-ring:focus-visible,
+    button:focus-visible,
+    input:focus-visible,
+    select:focus-visible,
+    a:focus-visible {
+      outline: 3px solid rgba(238, 107, 77, 0.4);
+      outline-offset: 2px;
+    }
+
+    .field {
+      width: 100%;
+      border: 1px solid #cbc5b8;
+      border-radius: 0.85rem;
+      background: #fffefb;
+      color: var(--ink);
+      padding: 0.75rem 0.9rem;
+      transition: border-color 160ms ease, box-shadow 160ms ease;
+    }
+
+    .field:focus {
+      border-color: var(--coral);
+      box-shadow: 0 0 0 4px rgba(238, 107, 77, 0.12);
+      outline: none;
+    }
+
+    /* --- Status Styling Config --- */
+    .lead-row {
+      animation: rowIn 280ms ease both;
+      transition: background-color 200ms ease;
+    }
+
+    .lead-row td {
+      border-top: 1px solid var(--line);
+      vertical-align: middle;
+    }
+
+    /* Standard state */
+    .lead-row:hover {
+      background: rgba(219, 227, 214, 0.3);
+    }
+
+    /* Appointment Set: Bright Green (#22c55e / 15% opacity for row, distinct green badges) */
+    .lead-row.status-appointment_set {
+      background: rgba(34, 197, 94, 0.16) !important;
+    }
+    .lead-row.status-appointment_set:hover {
+      background: rgba(34, 197, 94, 0.24) !important;
+    }
+
+    /* Email Bounced: Dark Gray */
+    .lead-row.status-email_bounced {
+      background: rgba(75, 85, 99, 0.15) !important;
+    }
+    .lead-row.status-email_bounced:hover {
+      background: rgba(75, 85, 99, 0.22) !important;
+    }
+
+    /* Expansions */
+    .detail-panel {
+      display: grid;
+      grid-template-rows: 0fr;
+      transition: grid-template-rows 220ms ease;
+    }
+
+    .detail-panel > div { overflow: hidden; }
+
+    .lead-row.is-expanded .detail-panel { grid-template-rows: 1fr; }
+    .lead-row.is-expanded .detail-chevron { transform: rotate(180deg); }
+    .detail-chevron { transition: transform 180ms ease; }
+
+    .modal-backdrop {
+      background: rgba(12, 31, 32, 0.7);
+      backdrop-filter: blur(7px);
+    }
+
+    .modal-card {
+      width: min(100% - 1.5rem, 52rem);
+      max-height: 90vh;
+      overflow-y: auto;
+      box-shadow: 0 30px 90px rgba(5, 20, 21, 0.35);
+      animation: modalIn 220ms ease both;
+    }
+
+    .toast {
+      transform: translateY(-0.5rem) translateX(-50%);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 180ms ease, transform 180ms ease;
+    }
+
+    .toast.is-visible {
+      transform: translateY(0) translateX(-50%);
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .reveal {
+      animation: revealUp 500ms ease both;
+    }
+
+    @keyframes revealUp {
+      from { opacity: 0; transform: translateY(12px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes rowIn {
+      from { opacity: 0; transform: translateY(7px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes modalIn {
+      from { opacity: 0; transform: translateY(12px) scale(0.985); }
+      to { opacity: 1; transform: translateY(0) scale(1); }
+    }
+
+    /* Autocomplete Popover Position */
+    .suggest-container {
+      position: relative;
+    }
+    .suggest-box {
+      position: absolute;
+      top: 100%;
+      left: 0;
+      right: 0;
+      background: #ffffff;
+      border: 1px solid #cbc5b8;
+      border-radius: 0.5rem;
+      max-height: 150px;
+      overflow-y: auto;
+      z-index: 50;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+    }
+    .suggest-item {
+      padding: 0.5rem 0.75rem;
+      cursor: pointer;
+      font-size: 0.85rem;
+    }
+    .suggest-item:hover {
+      background-color: var(--cream);
+    }
+
+    @media (max-width: 767px) {
+      .desktop-table-head { display: none; }
+      .lead-row { display: block; padding: 1rem; border-top: 1px solid var(--line); }
+      .lead-row td { display: block; border: 0; padding: 0.3rem 0 !important; }
+      .lead-row td[data-mobile-label]::before {
+        content: attr(data-mobile-label);
+        display: block;
+        margin-bottom: 0.15rem;
+        color: var(--muted);
+        font-size: 0.7rem;
+        font-weight: 700;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+      }
+      .lead-actions { justify-content: flex-start; margin-top: 0.5rem; }
+    }
+  </style>
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+</head>
+<body style="background: radial-gradient(rgb(248, 223, 211), rgb(245, 240, 230), rgb(233, 238, 231));">
+  <div class="app-shell atmosphere w-full min-h-screen">
+    
+    <header class="w-full border-b border-white/10" style="background: linear-gradient(135deg, rgb(19, 46, 47), rgb(37, 76, 73));">
+      <div class="content-width py-7 md:py-10">
+        <div class="flex flex-col gap-7 lg:flex-row lg:items-end lg:justify-between">
+          <div class="max-w-3xl reveal">
+            <div class="mb-4 flex items-center gap-3">
+              <span class="grid h-11 w-11 place-items-center rounded-2xl bg-white/10 text-[#f8c8b8]"> 
+                <i data-lucide="contact-round"></i> 
+              </span>
+              <p class="font-bold uppercase tracking-[0.2em]" style="color: rgb(248, 200, 184); font-size: 12px; letter-spacing: 0.12rem;">Consolidated prospecting base</p>
+            </div>
+            <h1 class="display-font leading-[0.98]" style="color: rgb(255, 253, 247); font-weight: 700; font-size: 54px; letter-spacing: -0.04rem;">Lead Tracker</h1>
+            <p class="mt-4 max-w-2xl leading-relaxed text-sm md:text-base text-[#dce8e3]">
+              Organize leads, track outreach across 3 phases, view statuses, and prevent entry duplication effortlessly.
+            </p>
+          </div>
+          <div class="flex flex-wrap gap-3">
+            <button id="export-leads-button" type="button" class="focus-ring reveal inline-flex min-h-12 items-center justify-center gap-2 rounded-full px-6 py-3 font-bold shadow-lg bg-white/10 text-white border border-white/20 transition hover:-translate-y-0.5 active:translate-y-0 text-sm">
+              <i data-lucide="download" class="h-4 w-4"></i> Export to Sheets
+            </button>
+            <button id="open-import-modal" type="button" class="focus-ring reveal inline-flex min-h-12 items-center justify-center gap-2 rounded-full px-6 py-3 font-bold shadow-lg bg-white/10 text-white border border-white/20 transition hover:-translate-y-0.5 active:translate-y-0 text-sm">
+              <i data-lucide="upload" class="h-4 w-4"></i> Import File (.xlsx / .csv)
+            </button>
+            <button id="open-add-modal" type="button" class="focus-ring reveal inline-flex min-h-12 items-center justify-center gap-2 rounded-full px-6 py-3 font-bold shadow-lg transition hover:-translate-y-0.5 active:translate-y-0 text-sm" style="background: rgb(238, 107, 77); color: rgb(255, 255, 255);">
+              <i data-lucide="plus" class="h-4 w-4"></i> Add lead
+            </button>
+          </div>
+        </div>
+        
+        <div class="mt-8 grid gap-3 sm:grid-cols-4 reveal">
+          <article class="rounded-2xl border border-white/10 p-4" style="background: rgba(255, 255, 255, 0.08);">
+            <p class="font-semibold text-xs text-[#b9cfca]">Total leads</p>
+            <p id="total-leads" class="display-font mt-1 text-3xl font-bold text-white">0</p>
+          </article>
+          <article class="rounded-2xl border border-white/10 p-4" style="background: rgba(255, 255, 255, 0.08);">
+            <p class="font-semibold text-xs text-[#22c55e]">Appointment Set</p>
+            <p id="total-appointments" class="display-font mt-1 text-3xl font-bold text-[#22c55e]">0</p>
+          </article>
+          <article class="rounded-2xl border border-white/10 p-4" style="background: rgba(255, 255, 255, 0.08);">
+            <p class="font-semibold text-xs text-[#9ca3af]">Email Bounced</p>
+            <p id="total-bounces" class="display-font mt-1 text-3xl font-bold text-slate-400">0</p>
+          </article>
+          <article class="rounded-2xl border border-white/10 p-4" style="background: rgba(255, 255, 255, 0.08);">
+            <p class="font-semibold text-xs text-[#b9cfca]">Active Sources / Communities</p>
+            <p id="total-communities" class="display-font mt-1 text-3xl font-bold text-white">0</p>
+          </article>
+        </div>
+      </div>
+    </header>
+
+    <main class="content-width py-6 md:py-9">
+      <section class="surface reveal overflow-hidden rounded-[1.5rem]">
+        
+        <div class="border-b border-[#ded8ca] p-4 md:p-6">
+          <div class="mb-5 flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
+            <div>
+              <h2 class="display-font font-bold text-2xl text-[#132e2f]">Consolidated Directory</h2>
+              <p class="text-xs text-[#667372]">Search across every field and organize outreach efforts instantly.</p>
+            </div>
+            <p id="visible-count" class="text-xs font-semibold text-[#667372]"></p>
+          </div>
+          
+          <form class="grid gap-4 md:grid-cols-4 items-end" onsubmit="event.preventDefault();">
+            <div>
+              <label class="mb-1.5 block font-bold text-xs text-[#294443]" for="search-input">Search database</label>
+              <div class="relative">
+                <i data-lucide="search" class="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#667372]"></i> 
+                <input id="search-input" class="field pl-10 text-sm" type="search" placeholder="Company, name, email, note, or source...">
+              </div>
+            </div>
+            <div>
+              <label class="mb-1.5 block font-bold text-xs text-[#294443]" for="industry-filter">Filter by Industry</label> 
+              <select id="industry-filter" class="field text-sm"> 
+                <option value="">All industries</option> 
+              </select>
+            </div>
+            <div>
+              <label class="mb-1.5 block font-bold text-xs text-[#294443]" for="community-filter">Filter by Source</label> 
+              <select id="community-filter" class="field text-sm"> 
+                <option value="">All sources</option> 
+              </select>
+            </div>
+            <div>
+              <button id="clear-filters" type="button" class="w-full h-[46px] border border-[#cbc5b8] rounded-xl hover:bg-black/5 font-semibold text-sm transition">
+                Reset Filters
+              </button>
+            </div>
+          </form>
+        </div>
+
+        <div class="overflow-x-auto">
+          <table class="w-full text-left border-collapse">
+            <thead>
+              <tr class="desktop-table-head bg-[#fbf8f0] text-xs font-bold uppercase tracking-wider text-[#667372] border-b border-[#ded8ca]">
+                <th class="py-4 px-6 w-8"></th>
+                <th class="py-4 px-6">Company & Brand</th>
+                <th class="py-4 px-6">Representative Contact</th>
+                <th class="py-4 px-6">Sponsorship Details</th>
+                <th class="py-4 px-6">Outreach Stage (Emails 1-3)</th>
+                <th class="py-4 px-6">Group / Community</th>
+                <th class="py-4 px-6 text-right">Actions</th>
+              </tr>
+            </thead>
+            <tbody id="leads-table-body">
+              </tbody>
+          </table>
+          
+          <div id="empty-state" class="hidden p-12 text-center">
+            <div class="mx-auto w-12 h-12 text-[#667372]/50 mb-3">
+              <i data-lucide="folder-open" class="w-full h-full"></i>
+            </div>
+            <p class="font-bold text-lg text-[#132e2f]">No leads match your selection</p>
+            <p class="text-sm text-slate-500 mt-1">Add a new entry or try clearing your filter parameters.</p>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <div id="toast" class="toast fixed bottom-6 left-1/2 -translate-x-1/2 z-50 bg-[#132e2f] text-[#f5f0e6] px-5 py-3 rounded-xl shadow-2xl flex items-center gap-3 text-sm font-medium">
+      <span id="toast-icon"></span>
+      <span id="toast-message">Action processed</span>
+    </div>
+
+    <div id="add-modal" class="modal-backdrop fixed inset-0 z-50 flex items-center justify-center p-4 hidden">
+      <div class="modal-card surface rounded-[1.5rem] p-6 md:p-8 flex flex-col gap-6">
+        <div class="flex items-center justify-between">
+          <h3 class="display-font text-2xl font-bold">Add New Lead Profile</h3>
+          <button type="button" class="close-add-modal p-2 hover:bg-black/5 rounded-full transition">
+            <i data-lucide="x" class="h-6 w-6"></i>
+          </button>
+        </div>
+        
+        <form id="add-lead-form" class="grid gap-4 sm:grid-cols-2" autocomplete="off">
+          
+          <div class="suggest-container">
+            <label class="block text-xs font-bold uppercase tracking-wide text-[#667372] mb-1.5" for="form-company">Company Name *</label>
+            <input id="form-company" type="text" required class="field" placeholder="Acme Corp" oninput="showSuggest(this, 'company')">
+            <div class="suggest-box hidden" id="suggest-company"></div>
+          </div>
+          
+          <div class="suggest-container">
+            <label class="block text-xs font-bold uppercase tracking-wide text-[#667372] mb-1.5" for="form-name">Contact Representative *</label>
+            <input id="form-name" type="text" required class="field" placeholder="Jessica Ramos" oninput="showSuggest(this, 'name')">
+            <div class="suggest-box hidden" id="suggest-name"></div>
+          </div>
+          
+          <div class="suggest-container">
+            <label class="block text-xs font-bold uppercase tracking-wide text-[#667372] mb-1.5" for="form-email">Email Address</label>
+            <input id="form-email" type="email" class="field" placeholder="jessica@brand.com" oninput="showSuggest(this, 'email')">
+            <div class="suggest-box hidden" id="suggest-email"></div>
+          </div>
+          
+          <div class="suggest-container">
+            <label class="block text-xs font-bold uppercase tracking-wide text-[#667372] mb-1.5" for="form-phone">Phone Number</label>
+            <input id="form-phone" type="tel" class="field" placeholder="+63 900 000 0000" oninput="showSuggest(this, 'phone')">
+            <div class="suggest-box hidden" id="suggest-phone"></div>
+          </div>
+          
+          <div class="suggest-container">
+            <label class="block text-xs font-bold uppercase tracking-wide text-[#667372] mb-1.5" for="form-industry">Industry Category *</label>
+            <input id="form-industry" type="text" required class="field" placeholder="e.g. Fintech, Logistics" oninput="showSuggest(this, 'industry')">
+            <div class="suggest-box hidden" id="suggest-industry"></div>
+          </div>
+          
+          <div class="suggest-container">
+            <label class="block text-xs font-bold uppercase tracking-wide text-[#667372] mb-1.5" for="form-community">Source / Community Group *</label>
+            <input id="form-community" type="text" required class="field" placeholder="e.g. Grab Hub, IT-BPM" oninput="showSuggest(this, 'community')">
+            <div class="suggest-box hidden" id="suggest-community"></div>
+          </div>
+
+          <div class="sm:col-span-2">
+            <label class="block text-xs font-bold uppercase tracking-wide text-[#667372] mb-1.5" for="form-sponsorships">Sponsorship Details</label>
+            <input id="form-sponsorships" type="text" class="field" placeholder="e.g. Silver Tier Sponsor, Event partner">
+          </div>
+          
+          <div class="sm:col-span-2">
+            <label class="block text-xs font-bold uppercase tracking-wide text-[#667372] mb-1.5" for="form-notes">Interaction Notes & Logs</label>
+            <textarea id="form-notes" rows="3" class="field resize-none" placeholder="Enter first-contact updates, custom details, or tracking items..."></textarea>
+          </div>
+          
+          <div class="sm:col-span-2 flex justify-end gap-3 mt-4">
+            <button type="button" class="close-add-modal px-6 py-2.5 border border-[#cbc5b8] rounded-full hover:bg-black/5 font-bold transition">Cancel</button>
+            <button type="submit" class="px-6 py-2.5 bg-[#ee6b4d] text-white rounded-full hover:bg-[#cf4f34] font-bold transition shadow-lg">Save Lead Entry</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <div id="import-modal" class="modal-backdrop fixed inset-0 z-50 flex items-center justify-center p-4 hidden">
+      <div class="modal-card surface rounded-[1.5rem] p-6 md:p-8 max-w-md flex flex-col gap-6">
+        <div class="flex items-center justify-between">
+          <h3 class="display-font text-2xl font-bold">Import spreadsheet list</h3>
+          <button type="button" class="close-import-modal p-2 hover:bg-black/5 rounded-full transition">
+            <i data-lucide="x" class="h-6 w-6"></i>
+          </button>
+        </div>
+        <p class="text-sm text-[#667372] leading-relaxed">
+          Upload any <strong>.xlsx</strong> or <strong>.csv</strong> spreadsheet. For best compatibility, your headers should loosely align to: 
+          <br><strong class="text-slate-800">Company, Contact Name, Email, Phone, Industry, Source, Sponsorships, Notes</strong>.
+        </p>
+        
+        <div class="border-2 border-dashed border-[#cbc5b8] hover:border-[#ee6b4d] rounded-2xl p-8 text-center transition cursor-pointer relative bg-[#fffefb]">
+          <input type="file" id="spreadsheet-file" class="absolute inset-0 opacity-0 cursor-pointer" accept=".csv,.xlsx,.xls">
+          <div class="flex flex-col items-center gap-2">
+            <div class="h-10 w-10 text-[#ee6b4d]">
+              <i data-lucide="upload-cloud" class="h-full w-full"></i>
+            </div>
+            <p class="font-bold text-sm">Select Excel / CSV File</p>
+            <p class="text-xs text-[#667372]">Standard sheet columns map automatically</p>
+          </div>
+        </div>
+        
+        <div class="flex justify-end">
+          <button type="button" class="close-import-modal px-6 py-2.5 border border-[#cbc5b8] rounded-full hover:bg-black/5 font-bold transition">Close</button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <script>
+    // --- DATABASE CONFIGURATION ---
+    let leads = JSON.parse(localStorage.getItem('consolidated_leads')) || [
+      {
+        id: '1',
+        company: 'Apex Logistics Inc.',
+        name: 'Jessica Ramos',
+        email: 'jessica.r@apex.org',
+        phone: '+63 917 555 1122',
+        industry: 'Transportation',
+        community: 'Logistics Union',
+        sponsorships: 'Silver Sponsor',
+        notes: 'Keen on route updates. Reached out during the winter program.',
+        status: 'default', // 'default', 'appointment_set', 'email_bounced'
+        email1: '2026-07-01',
+        email2: '2026-07-08',
+        email3: ''
+      },
+      {
+        id: '2',
+        company: 'Spark Innovations Ltd',
+        name: 'Romeo Santos',
+        email: 'romeo@sparkinnovate.com',
+        phone: '+63 920 888 3344',
+        industry: 'Information Technology',
+        community: 'IT-BPM Association',
+        sponsorships: 'Platinum Tier',
+        notes: 'Inquired about technical speed integrations. Follow-up immediately.',
+        status: 'appointment_set',
+        email1: '2026-07-02',
+        email2: '',
+        email3: ''
+      }
+    ];
+
+    // --- DOM TARGETS ---
+    const leadsTableBody = document.getElementById('leads-table-body');
+    const emptyState = document.getElementById('empty-state');
+    const totalLeadsEl = document.getElementById('total-leads');
+    const totalAppointmentsEl = document.getElementById('total-appointments');
+    const totalBouncesEl = document.getElementById('total-bounces');
+    const totalCommunitiesEl = document.getElementById('total-communities');
+    const visibleCountEl = document.getElementById('visible-count');
+
+    const searchInput = document.getElementById('search-input');
+    const industryFilter = document.getElementById('industry-filter');
+    const communityFilter = document.getElementById('community-filter');
+    const clearFiltersBtn = document.getElementById('clear-filters');
+    const addLeadForm = document.getElementById('add-lead-form');
+    const fileInput = document.getElementById('spreadsheet-file');
+
+    const addModal = document.getElementById('add-modal');
+    const importModal = document.getElementById('import-modal');
+    const openAddModalBtn = document.getElementById('open-add-modal');
+    const openImportModalBtn = document.getElementById('open-import-modal');
+    const closeAddModalBtns = document.querySelectorAll('.close-add-modal');
+    const closeImportModalBtns = document.querySelectorAll('.close-import-modal');
+
+    const exportBtn = document.getElementById('export-leads-button');
+
+    // --- STARTUP APP INITS ---
+    document.addEventListener('DOMContentLoaded', () => {
+      renderApp();
+      setupListeners();
+      lucide.createIcons();
+    });
+
+    function renderApp() {
+      // 1. Calculations & Dashboard Metrics updates
+      const activeCommunities = new Set(leads.map(l => l.community.trim()).filter(Boolean));
+      const appointmentCount = leads.filter(l => l.status === 'appointment_set').length;
+      const bouncedCount = leads.filter(l => l.status === 'email_bounced').length;
+
+      totalLeadsEl.textContent = leads.length;
+      totalAppointmentsEl.textContent = appointmentCount;
+      totalBouncesEl.textContent = bouncedCount;
+      totalCommunitiesEl.textContent = activeCommunities.size;
+
+      // 2. Refresh Filters Options
+      const activeIndustries = new Set(leads.map(l => l.industry.trim()).filter(Boolean));
+      populateFilter(industryFilter, Array.from(activeIndustries), 'All industries');
+      populateFilter(communityFilter, Array.from(activeCommunities), 'All sources');
+
+      // 3. Filter and Output
+      filterAndProcessData();
+    }
+
+    function populateFilter(dropdown, items, defaultLabel) {
+      const savedValue = dropdown.value;
+      dropdown.innerHTML = `<option value="">${defaultLabel}</option>`;
+      items.sort().forEach(item => {
+        const option = document.createElement('option');
+        option.value = item;
+        option.textContent = item;
+        if (item === savedValue) option.selected = true;
+        dropdown.appendChild(option);
+      });
+    }
+
+    // --- MAIN DYNAMIC RENDER & FILTER ---
+    function filterAndProcessData() {
+      const searchVal = searchInput.value.toLowerCase().trim();
+      const selectedInd = industryFilter.value;
+      const selectedComm = communityFilter.value;
+
+      const filtered = leads.filter(lead => {
+        const matchesSearch = 
+          lead.company.toLowerCase().includes(searchVal) ||
+          lead.name.toLowerCase().includes(searchVal) ||
+          lead.email.toLowerCase().includes(searchVal) ||
+          lead.community.toLowerCase().includes(searchVal) ||
+          (lead.sponsorships && lead.sponsorships.toLowerCase().includes(searchVal)) ||
+          (lead.notes && lead.notes.toLowerCase().includes(searchVal));
+
+        const matchesInd = !selectedInd || lead.industry === selectedInd;
+        const matchesComm = !selectedComm || lead.community === selectedComm;
+
+        return matchesSearch && matchesInd && matchesComm;
+      });
+
+      visibleCountEl.textContent = `Showing ${filtered.length} of ${leads.length} records`;
+
+      if (filtered.length === 0) {
+        leadsTableBody.innerHTML = '';
+        emptyState.classList.remove('hidden');
+      } else {
+        emptyState.classList.add('hidden');
+        renderEntries(filtered);
+      }
+    }
+
+    // --- RENDER TABLE ROWS ---
+    function renderEntries(items) {
+      leadsTableBody.innerHTML = items.map(lead => {
+        // Status classes
+        let statusClass = 'status-default';
+        if (lead.status === 'appointment_set') statusClass = 'status-appointment_set';
+        if (lead.status === 'email_bounced') statusClass = 'status-email_bounced';
+
+        // Prepare email dates visual status display
+        const email1Badge = lead.email1 ? `<span class="bg-indigo-100 text-indigo-800 text-[10px] px-2 py-0.5 rounded font-mono" title="Sent: ${lead.email1}">E1: ${lead.email1}</span>` : '<span class="text-slate-300 text-[10px] border border-dashed px-1.5 rounded font-mono">E1</span>';
+        const email2Badge = lead.email2 ? `<span class="bg-indigo-100 text-indigo-800 text-[10px] px-2 py-0.5 rounded font-mono" title="Sent: ${lead.email2}">E2: ${lead.email2}</span>` : '<span class="text-slate-300 text-[10px] border border-dashed px-1.5 rounded font-mono">E2</span>';
+        const email3Badge = lead.email3 ? `<span class="bg-indigo-100 text-indigo-800 text-[10px] px-2 py-0.5 rounded font-mono" title="Sent: ${lead.email3}">E3: ${lead.email3}</span>` : '<span class="text-slate-300 text-[10px] border border-dashed px-1.5 rounded font-mono">E3</span>';
+
+        return `
+          <tr class="lead-row cursor-pointer ${statusClass}" data-lead-id="${lead.id}">
+            <td class="py-4 px-6">
+              <button class="detail-chevron text-[#667372] p-1 hover:bg-black/5 rounded-lg transition" aria-label="Details dropdown">
+                <i data-lucide="chevron-down" class="h-4.5 w-4.5"></i>
+              </button>
+            </td>
+            <td class="py-4 px-6 text-sm font-bold" data-mobile-label="Company">
+              ${safeText(lead.company)}
+            </td>
+            <td class="py-4 px-6 text-sm" data-mobile-label="Contact Representative">
+              <div class="font-medium">${safeText(lead.name)}</div>
+              ${lead.email ? `<div class="text-xs text-[#667372] mt-0.5">${safeText(lead.email)}</div>` : ''}
+              ${lead.phone ? `<div class="text-[11px] text-[#667372]">${safeText(lead.phone)}</div>` : ''}
+            </td>
+            <td class="py-4 px-6 text-sm" data-mobile-label="Sponsorship">
+              <span class="text-xs font-semibold text-[#132e2f] bg-[#f5ebd6] border border-[#e3d0ae] px-2 py-1 rounded-md">
+                ${lead.sponsorships ? safeText(lead.sponsorships) : 'General Lead'}
+              </span>
+            </td>
+            <td class="py-4 px-6 text-sm" data-mobile-label="Outreach History">
+              <div class="flex items-center gap-1.5">
+                ${email1Badge}
+                ${email2Badge}
+                ${email3Badge}
+              </div>
+            </td>
+            <td class="py-4 px-6 text-sm" data-mobile-label="Community">
+              <span class="inline-flex items-center rounded-full bg-[#dbe3d6] px-2.5 py-0.5 text-xs font-medium text-[#2d4030]">
+                ${safeText(lead.community)}
+              </span>
+            </td>
+            <td class="py-4 px-6 text-right" data-mobile-label="Controls">
+              <div class="lead-actions flex items-center justify-end gap-2" onclick="event.stopPropagation()">
+                <select onchange="updateLeadStatus('${lead.id}', this.value)" class="text-xs border border-[#cbc5b8] rounded px-2 py-1 bg-white font-semibold text-[#132e2f]">
+                  <option value="default" ${lead.status === 'default' ? 'selected' : ''}>Status (Default)</option>
+                  <option value="appointment_set" ${lead.status === 'appointment_set' ? 'selected' : ''}>📅 Appointment Set</option>
+                  <option value="email_bounced" ${lead.status === 'email_bounced' ? 'selected' : ''}>🚫 Email Bounced</option>
+                </select>
+                <button onclick="deleteRow('${lead.id}')" class="p-1 text-slate-400 hover:text-red-500 rounded transition" title="Delete lead">
+                  <i data-lucide="trash-2" class="h-4.5 w-4.5"></i>
+                </button>
+              </div>
+            </td>
+          </tr>
+          
+          <tr class="bg-white/40 hidden" data-parent-lead-id="${lead.id}">
+            <td colspan="7" class="p-0 border-t border-[#ded8ca]">
+              <div class="detail-panel">
+                <div class="p-6 grid md:grid-cols-3 gap-6">
+                  
+                  <div>
+                    <h4 class="text-xs font-bold uppercase tracking-wider text-[#667372] mb-1.5">Lead Details</h4>
+                    <p class="text-sm font-semibold text-[#132e2f]">${safeText(lead.company)}</p>
+                    <p class="text-xs text-[#667372] mt-1">Industry: ${safeText(lead.industry)}</p>
+                    <p class="text-xs text-[#667372]">Community Group: ${safeText(lead.community)}</p>
+                    <p class="text-xs text-[#667372]">Sponsorship Tier: ${lead.sponsorships ? safeText(lead.sponsorships) : 'None'}</p>
+                  </div>
+                  
+                  <div onclick="event.stopPropagation()">
+                    <h4 class="text-xs font-bold uppercase tracking-wider text-[#667372] mb-2">Track 3 Outreach Emails</h4>
+                    <div class="space-y-2">
+                      <div class="flex items-center justify-between gap-2">
+                        <label class="text-xs text-slate-600 font-semibold">Email 1:</label>
+                        <input type="date" value="${lead.email1 || ''}" onchange="updateOutreachDate('${lead.id}', 'email1', this.value)" class="text-xs border border-[#cbc5b8] rounded px-2 py-1 bg-white font-semibold">
+                      </div>
+                      <div class="flex items-center justify-between gap-2">
+                        <label class="text-xs text-slate-600 font-semibold">Email 2:</label>
+                        <input type="date" value="${lead.email2 || ''}" onchange="updateOutreachDate('${lead.id}', 'email2', this.value)" class="text-xs border border-[#cbc5b8] rounded px-2 py-1 bg-white font-semibold">
+                      </div>
+                      <div class="flex items-center justify-between gap-2">
+                        <label class="text-xs text-slate-600 font-semibold">Email 3:</label>
+                        <input type="date" value="${lead.email3 || ''}" onchange="updateOutreachDate('${lead.id}', 'email3', this.value)" class="text-xs border border-[#cbc5b8] rounded px-2 py-1 bg-white font-semibold">
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <div onclick="event.stopPropagation()">
+                    <h4 class="text-xs font-bold uppercase tracking-wider text-[#667372] mb-1.5">Interactive Notes & Log</h4>
+                    <textarea onchange="updateRowNotes('${lead.id}', this.value)" rows="3" class="w-full text-xs italic text-slate-700 bg-white border border-[#ded8ca] rounded-xl p-3 leading-relaxed whitespace-pre-wrap" placeholder="Edit notes directly here. Autocompletes immediately...">${lead.notes ? safeText(lead.notes) : ''}</textarea>
+                  </div>
+                  
+                </div>
+              </div>
+            </td>
+          </tr>
+        `;
+      }).join('');
+
+      lucide.createIcons();
+    }
+
+    // --- HELPER: SAFE DISPLAY VALUES ---
+    function safeText(str) {
+      if (!str) return '';
+      return str.replace(/[&<>'"]/g, 
+        tag => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[tag] || tag)
+      );
+    }
+
+    // --- EVENT HANDLERS / LISTENERS ---
+    function setupListeners() {
+      // Interactive Search
+      searchInput.addEventListener('input', filterAndProcessData);
+      industryFilter.addEventListener('change', filterAndProcessData);
+      communityFilter.addEventListener('change', filterAndProcessData);
+
+      // Accordion expanded row handling
+      leadsTableBody.addEventListener('click', (e) => {
+        const row = e.target.closest('.lead-row');
+        if (!row || e.target.closest('select') || e.target.closest('button') && !e.target.closest('.detail-chevron')) return;
+
+        const id = row.dataset.leadId;
+        const detailRow = document.querySelector(`[data-parent-lead-id="${id}"]`);
+        
+        row.classList.toggle('is-expanded');
+        if (detailRow.classList.contains('hidden')) {
+          detailRow.classList.remove('hidden');
+          setTimeout(() => {
+            detailRow.querySelector('.detail-panel').style.gridTemplateRows = '1fr';
+          }, 10);
+        } else {
+          detailRow.querySelector('.detail-panel').style.gridTemplateRows = '0fr';
+          setTimeout(() => {
+            detailRow.classList.add('hidden');
+          }, 220);
+        }
+      });
+
+      // Clear Filters click
+      clearFiltersBtn.addEventListener('click', () => {
+        searchInput.value = '';
+        industryFilter.value = '';
+        communityFilter.value = '';
+        filterAndProcessData();
+        showToast('Cleaned all directory filters', 'filter-x');
+      });
+
+      // Show/Hide Modals
+      openAddModalBtn.addEventListener('click', () => {
+        addModal.classList.remove('hidden');
+      });
+      openImportModalBtn.addEventListener('click', () => {
+        importModal.classList.remove('hidden');
+      });
+
+      closeAddModalBtns.forEach(btn => btn.addEventListener('click', () => addModal.classList.add('hidden')));
+      closeImportModalBtns.forEach(btn => btn.addEventListener('click', () => importModal.classList.add('hidden')));
+
+      // Form Submits
+      addLeadForm.addEventListener('submit', handleAddLeadSubmit);
+
+      // Spreadsheet CSV/XLSX Uploads parsing
+      fileInput.addEventListener('change', parseUploadedSpreadsheet);
+
+      // Spreadsheet download export trigger
+      exportBtn.addEventListener('click', handleSheetExport);
+
+      // Click outside suggest boxes removes suggestions
+      document.addEventListener('click', (e) => {
+        if (!e.target.closest('.suggest-container')) {
+          document.querySelectorAll('.suggest-box').forEach(box => box.classList.add('hidden'));
+        }
+      });
+    }
+
+    // --- PREVENT DUPLICATES & AUTOCOMPLETE SUGGESTIONS ---
+    // Scans dynamically matching keywords to guide typed text input.
+    window.showSuggest = function(inputEl, fieldName) {
+      const value = inputEl.value.toLowerCase().trim();
+      const suggestBox = document.getElementById(`suggest-${fieldName}`);
+      
+      if (!value) {
+        suggestBox.classList.add('hidden');
+        return;
+      }
+
+      // Collect values already saved in the database to prevent duplicate entries
+      const matchedSuggestions = Array.from(new Set(
+        leads.map(l => l[fieldName] ? l[fieldName].toString().trim() : '')
+             .filter(v => v.toLowerCase().includes(value))
+      )).slice(0, 5); // Limit list count
+
+      if (matchedSuggestions.length === 0) {
+        suggestBox.classList.add('hidden');
+        return;
+      }
+
+      suggestBox.innerHTML = matchedSuggestions.map(item => `
+        <div class="suggest-item hover:bg-slate-100 p-2 text-xs font-medium cursor-pointer" onclick="selectSuggestion('${fieldName}', '${escapeJS(item)}')">
+          ${safeText(item)}
+        </div>
+      `).join('');
+      suggestBox.classList.remove('hidden');
+    };
+
+    window.selectSuggestion = function(fieldName, value) {
+      const inputEl = document.getElementById(`form-${fieldName}`);
+      inputEl.value = value;
+      document.getElementById(`suggest-${fieldName}`).classList.add('hidden');
+      
+      // Toast reminder alert to prevent duplicates
+      showToast(`Matched existing ${fieldName}: "${value}"`, 'alert-circle');
+    };
+
+    function escapeJS(str) {
+      return str.replace(/'/g, "\\'");
+    }
+
+    // --- UPDATE LEAD OUTREACH DATE AND NOTES ---
+    window.updateOutreachDate = function(leadId, field, dateVal) {
+      const lead = leads.find(l => l.id === leadId);
+      if (lead) {
+        lead[field] = dateVal;
+        saveLeads();
+        renderApp();
+        showToast('Outreach date updated', 'calendar');
+      }
+    };
+
+    window.updateRowNotes = function(leadId, notesVal) {
+      const lead = leads.find(l => l.id === leadId);
+      if (lead) {
+        lead.notes = notesVal;
+        saveLeads();
+        showToast('Notes saved successfully', 'edit-3');
+      }
+    };
+
+    // --- UPDATE STATUS & COLOR TOGGLE WITH RESET OPTION ---
+    window.updateLeadStatus = function(leadId, statusVal) {
+      const lead = leads.find(l => l.id === leadId);
+      if (lead) {
+        lead.status = statusVal; // 'default', 'appointment_set', 'email_bounced'
+        saveLeads();
+        renderApp();
+        
+        if (statusVal === 'default') {
+          showToast('Lead color restored to default', 'refresh-cw');
+        } else {
+          showToast(`Marked as ${statusVal.replace('_', ' ')}`, 'check-circle');
+        }
+      }
+    };
+
+    // --- PROCESS SINGLE NEW LEAD SUBMISSION ---
+    function handleAddLeadSubmit(e) {
+      e.preventDefault();
+
+      const company = document.getElementById('form-company').value.trim();
+      const name = document.getElementById('form-name').value.trim();
+      const email = document.getElementById('form-email').value.trim();
+      const phone = document.getElementById('form-phone').value.trim();
+      const industry = document.getElementById('form-industry').value.trim();
+      const community = document.getElementById('form-community').value.trim();
+      const sponsorships = document.getElementById('form-sponsorships').value.trim();
+      const notes = document.getElementById('form-notes').value.trim();
+
+      // Final strict duplicate validation check before saving
+      const duplicateFound = leads.some(l => 
+        l.company.toLowerCase() === company.toLowerCase() && 
+        l.name.toLowerCase() === name.toLowerCase()
+      );
+
+      if (duplicateFound) {
+        if (!confirm(`Warning: A profile for "${company}" with Contact "${name}" already exists. Save duplicate anyway?`)) {
+          return;
+        }
+      }
+
+      const freshLead = {
+        id: Date.now().toString(),
+        company,
+        name,
+        email,
+        phone,
+        industry,
+        community,
+        sponsorships,
+        notes,
+        status: 'default',
+        email1: '',
+        email2: '',
+        email3: ''
+      };
+
+      leads.unshift(freshLead);
+      saveLeads();
+      addLeadForm.reset();
+      addModal.classList.add('hidden');
+      showToast('Lead entered into directory', 'check-circle');
+      renderApp();
+    }
+
+    // --- DELETE ROW ENTRY ---
+    window.deleteRow = function(id) {
+      if (confirm('Permanently remove this lead from database?')) {
+        leads = leads.filter(l => l.id !== id);
+        saveLeads();
+        showToast('Lead entry removed', 'trash');
+        renderApp();
+      }
+    };
+
+    // --- SAVE TO LOCALSTORAGE ---
+    function saveLeads() {
+      localStorage.setItem('consolidated_leads', JSON.stringify(leads));
+    }
+
+    // --- BULK SHEET EXCEL / CSV EXPORT ---
+    function handleSheetExport() {
+      if (leads.length === 0) {
+        showToast('No leads available to export.', 'alert-circle');
+        return;
+      }
+
+      const formatted = leads.map(lead => ({
+        'Company/Business': lead.company,
+        'Contact Representative': lead.name,
+        'Email Address': lead.email || 'N/A',
+        'Phone Line': lead.phone || 'N/A',
+        'Industry Category': lead.industry,
+        'Source/Community': lead.community,
+        'Sponsorship Status': lead.sponsorships || '',
+        'Email 1 Sent': lead.email1 || '',
+        'Email 2 Sent': lead.email2 || '',
+        'Email 3 Sent': lead.email3 || '',
+        'Outreach Status': lead.status,
+        'Interaction Logs/Notes': lead.notes || ''
+      }));
+
+      const wb = XLSX.utils.book_new();
+      const ws = XLSX.utils.json_to_sheet(formatted);
+      XLSX.utils.book_append_sheet(wb, ws, "Lead Base");
+      
+      XLSX.writeFile(wb, "consolidated-leads-list.xlsx");
+      showToast('Downloaded Excel directory', 'download-cloud');
+    }
+
+    // --- BULK XLSX / CSV IMPORT PARSER ---
+    function parseUploadedSpreadsheet(e) {
+      const file = e.target.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = function(evt) {
+        try {
+          const binaryStr = evt.target.result;
+          const workbook = XLSX.read(binaryStr, { type: 'binary' });
+          const activeSheet = workbook.SheetNames[0];
+          const rawData = XLSX.utils.sheet_to_json(workbook.Sheets[activeSheet]);
+
+          if (rawData.length === 0) {
+            showToast('The file appears to contain no records.', 'alert-circle');
+            return;
+          }
+
+          const parsedList = rawData.map((row, index) => {
+            return {
+              id: (Date.now() + index).toString(),
+              company: lookUpCol(row, ['company', 'business', 'brand', 'firm', 'organization']) || 'N/A',
+              name: lookUpCol(row, ['name', 'representative', 'contact', 'person']) || 'N/A',
+              email: lookUpCol(row, ['email', 'e-mail', 'mail']) || '',
+              phone: lookUpCol(row, ['phone', 'tel', 'mobile', 'contact number']) || '',
+              industry: lookUpCol(row, ['industry', 'sector', 'category']) || 'Unspecified Sector',
+              community: lookUpCol(row, ['community', 'source', 'group', 'origin']) || 'Imported Base',
+              sponsorships: lookUpCol(row, ['sponsorship', 'sponsorships', 'tier', 'sponsorship level']) || '',
+              notes: lookUpCol(row, ['notes', 'remarks', 'interaction', 'comments']) || '',
+              status: 'default',
+              email1: lookUpCol(row, ['email1', 'email 1', 'sent 1', 'first email']) || '',
+              email2: lookUpCol(row, ['email2', 'email 2', 'sent 2', 'second email']) || '',
+              email3: lookUpCol(row, ['email3', 'email 3', 'sent 3', 'third email']) || ''
+            };
+          });
+
+          // Prepend imported leads
+          leads = [...parsedList, ...leads];
+          saveLeads();
+          importModal.classList.add('hidden');
+          showToast(`Successfully imported ${parsedList.length} leads!`, 'upload-cloud');
+          renderApp();
+          fileInput.value = '';
+        } catch (err) {
+          showToast('An error occurred processing file data.', 'alert-circle');
+          console.error(err);
+        }
+      };
+
+      reader.readAsBinaryString(file);
+    }
+
+    // Sheet column heuristic mapper
+    function lookUpCol(row, keys) {
+      for (const key of Object.keys(row)) {
+        const rowKeyLower = key.toLowerCase().trim();
+        if (keys.some(k => rowKeyLower.includes(k))) {
+          return row[key].toString().trim();
+        }
+      }
+      return '';
+    }
+
+    // --- INTERACTIVE SYSTEM TOAST ---
+    function showToast(text, iconName = 'info') {
+      const toast = document.getElementById('toast');
+      const toastMsg = document.getElementById('toast-message');
+      const toastIcon = document.getElementById('toast-icon');
+
+      toastMsg.textContent = text;
+      toastIcon.innerHTML = `<i data-lucide="${iconName}" class="h-4.5 w-4.5"></i>`;
+      lucide.createIcons();
+
+      toast.classList.add('is-visible');
+      setTimeout(() => {
+        toast.classList.remove('is-visible');
+      }, 3500);
+    }
+  </script>
+</body>
+</html>
